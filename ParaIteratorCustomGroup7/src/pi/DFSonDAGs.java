@@ -114,7 +114,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 	public boolean hasNext() {
 		int id = threadID.get();
 
-		ArrayList<GraphAdapterInterface> successors;
+//		ArrayList<GraphAdapterInterface> successors;
 		if (breakAll.get() == false) {
 			
 			// Retrieve node from local stack and store it in buffer
@@ -123,7 +123,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 				buffer[id][0] = node;
 				processedNodes.add(node);
 				Iterator<V> it = graph.getChildrenList(node).iterator();
-				// push the successors into the local stack
+				// push the successors (children) into the local stack
 				while (it.hasNext()) {
 					V nextNode =  it.next();
 					localStack.get(id).addLast(nextNode);
@@ -147,14 +147,14 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 								break;
 							}
 						}
+						
 						if (stolenNode != null) {
 							buffer[id][0] = stolenNode;
 							processedNodes.add(stolenNode);
 							Iterator<V> successorsIt = graph.getChildrenList(stolenNode).iterator();
 							// push the successors into the local stack
 							while (successorsIt.hasNext()) {
-								V nextNode = successorsIt
-										.next();
+								V nextNode = successorsIt.next();
 								localStack.get(id).addLast(nextNode);
 							}
 							return true;
@@ -170,7 +170,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 	
 	// Returns a node from the stack of the target
 	private V stealNode(int target) {
-		int id = threadID.get();
+		//int id = threadID.get();
 		V currentStackNode =  localStack.get(target).pollLast();
 		if(currentStackNode != null){
 			// checks that all the parents of the node are processed, if not
@@ -191,16 +191,20 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 	}
 	
 	// Returns a node from the local stack of the thread
-	private V getLocalNode() {
+	private V getLocalNode() { //next node for this thread to process?
 		int id = threadID.get();
 		V currentStackNode =  localStack.get(id).pollLast();
-		// checks that all the parents of the node are processed, if not
+		// checks that all the parents of the node are processed and
+		// that we haven't processed the current node, otherwise
 		// add it to waiting list and call method again of the target
 		if(currentStackNode != null){
+			
+			print(graph.getParentsList(currentStackNode));
+			
 			if(processedNodes.containsAll(graph.getParentsList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
 				return currentStackNode;
 			}else{
-				waitingList.add(currentStackNode);
+				waitingList.add(currentStackNode); //back to the waiting list
 				return getLocalNode();
 			}
 		}else{
@@ -211,7 +215,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 
 	// Threads call this method to exit
 	private void exit(CountDownLatch latch) {
-		int id = threadID.get();
+		//int id = threadID.get();
 	    if (processedNodesNum >= numTreeNodes) {
 			// All Nodes have been traversed
 		    permissionTable = giveAllPermission(permissionTable);
@@ -234,6 +238,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 
 	
 	// This method returns the node assigned to a specific thread 
+	@SuppressWarnings("unchecked")
 	public V next() {
 		int id = threadID.get();
 		return (V) buffer[id][0];
@@ -249,5 +254,11 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 	public boolean localBreak() {
 		throw new UnsupportedOperationException(
 				"Local break not supported yet for Graphs");
+	}
+	
+	private void print(Object... objs) {
+		for (Object o : objs) {
+			System.out.println(o);
+		}
 	}
 }

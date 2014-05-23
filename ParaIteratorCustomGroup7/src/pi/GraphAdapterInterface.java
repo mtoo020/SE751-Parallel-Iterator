@@ -25,6 +25,9 @@ import java.util.Collection;
 
 public interface GraphAdapterInterface<V, E> {
 
+	//returns the roots
+	public INode getRoot();
+	
 	//returns the successors of v
 	public ArrayList<V> getChildrenList(Object v);
 	
@@ -36,6 +39,5 @@ public interface GraphAdapterInterface<V, E> {
 
 	//returns a collection of all the edges in the graph
 	public Collection<E> edgesSet();
-
 }
 
