@@ -193,8 +193,26 @@ public class ParIteratorFactory<E> {
 		return getTreeIteratorDFSonDAGBottomTop(graph, root, numOfThreads);
 
 	}
-
 	
+	/**
+	 * This class represents a Parallel Breath First Search (BFS) Iterator which
+	 * works on Directed Acyclic Graphs (DAGs). It returns nodes mainly in BFS order
+	 * from bottom to top of the DAG (i.e. Leaf nodes are returned first before the
+	 * Root).
+	 * 
+	 * @param graph			The tree or DAG to be traversed in DFS
+	 * @param root			The starting node of the search (Will be replaced by starting nodes)
+	 * @param numOfThreads	The number of threads that will be sharing 
+	 *                      the DFS Parallel Iterator.
+	 * @param chunkSize		Max number of nodes a single thread can process at a single time.                     
+	 * 
+	 * @return				An instance of <code>ParIterator</code>.
+	 */
+	public static <V> ParIterator getTreeParIteratorBFSonDAGBottomTop(GraphAdapterInterface graph,
+			V root, int numOfThreads, int chunkSize) {
+		return getTreeIteratorBFSonDAGBottomTop(graph, root, numOfThreads, chunkSize);
+
+	}	
 	
 	/*
 	 * This method instantiates the right class based on the parameters passed by the user
@@ -229,5 +247,17 @@ public class ParIteratorFactory<E> {
 	public static <V> ParIterator getTreeIteratorDFSonDAGs(GraphAdapterInterface tree,
 			V root, int numOfThreads) {
 		return new DFSonDAGs(tree, root, numOfThreads);
+	}
+	
+	public static <V> ParIterator getTreeIteratorBFSonDAGBottomTop(GraphAdapterInterface tree,
+			V root, int numOfThreads, int chunkSize) {
+		return new BFSonDAGBottomTop(tree, root, numOfThreads, chunkSize);
+	}
+
+	public static ParIterator<INode> getTreeParIteratorDFSonDAGBottomTop(
+			GraphAdapterInterface<INode, String> dag, INode root,
+			int threadCount, int chunkSize) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -8,6 +8,7 @@ import java.util.*;
 public class MainDAG {
 	public static void main(String[] args){
 		int threadCount = 2;
+		int chunkSize = 2;
 		
 		GraphAdapterInterface<INode, String> dag = new GraphAdapter(createNodes());
 		
