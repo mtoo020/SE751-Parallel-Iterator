@@ -3,14 +3,22 @@ import pi.INode;
 import pi.ParIterator;
 import pi.ParIteratorFactory;
 
+import java.io.File;
 import java.util.*;
 
+import jxl.Cell;
+import jxl.CellType;
+import jxl.FormulaCell;
+import jxl.NumberCell;
+import jxl.Sheet;
+import jxl.Workbook;
+
 public class MainDAG {
-	public static void main(String[] args){
+	public static void main(String[] args) throws Exception{
 		int threadCount = 2;
 		int chunkSize = 2;
 		
-		GraphAdapterInterface<INode, String> dag = new GraphAdapter(createNodes());
+		GraphAdapterInterface<INode, String> dag = new GraphAdapter(createNodesFromXLS("test.xls"));
 		
 		@SuppressWarnings("unchecked")
 		ParIterator<INode> pi = ParIteratorFactory.getTreeParIteratorDFSonDAGTopBottom(dag, dag.getRoot(), threadCount);
@@ -37,46 +45,39 @@ public class MainDAG {
 		
 	}
 	
-	public static ArrayList<INode> createNodes(){
-		
-		INode a1 = new Node("A1","B1+C1");
-		
-		INode b1 = new Node("B1","B2+B3");
-		INode b2 = new Node("B2","5");
-		INode b3 = new Node("B3","7");
-		
-		INode c1 = new Node("C1","C2+C3");	
-		INode c2 = new Node("C2","8");
-		INode c3 = new Node("C3","2");
-		
-		a1.addChild(b1); //this could call b1.setParent(a1) and c1.setParent(a1)
-		a1.addChild(c1);
-		
-		b1.addParent(a1);
-		c1.addParent(a1);
-		
-		b1.addChild(b2);
-		b1.addChild(b3);
-		b2.addParent(b1);
-		b3.addParent(b1);
-		
-		c1.addChild(c2);
-		c1.addChild(c3);
-		
-		c2.addParent(c1);
-		c3.addParent(c1);
-
+	public static ArrayList<INode> createNodesFromXLS(String filename) throws Exception {
 		ArrayList<INode> list = new ArrayList<INode>();
-		list.add(a1);
 		
-		list.add(b1);
-		list.add(b2);
-		list.add(b3);
-
-		list.add(c1);
-		list.add(c2);
-		list.add(c3);
-
+		Workbook workbook = Workbook.getWorkbook(new File(filename));
+		Sheet sheet = workbook.getSheet(0);
+		
+		for (int i=0;i<sheet.getColumns();i++) {
+			for (int j=0;j<sheet.getRows();j++) {
+				Cell cell = sheet.getCell(i,j);
+				if (isFormulaCell(cell)) {
+					FormulaCell fc = (FormulaCell)cell;
+					INode node = new Node(fc.getFormula());
+					for (String cellref : fc.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {
+						node.addChild(new Node(cellref));
+					}
+					list.add(node);
+				}
+				else if (isNumberCell(cell)) {
+					list.add(new Node(cell.getContents()));
+				}
+			}
+		}
 		return list;
+	}
+
+	private static boolean isFormulaCell(Cell cell) {
+		return cell.getType() == CellType.NUMBER_FORMULA
+				|| cell.getType() == CellType.STRING_FORMULA
+				|| cell.getType() == CellType.BOOLEAN_FORMULA
+				|| cell.getType() == CellType.DATE_FORMULA
+				|| cell.getType() == CellType.FORMULA_ERROR;
+	}
+	private static boolean isNumberCell(Cell cell) {
+		return cell.getType() == CellType.NUMBER;
 	}
 }
