@@ -3,6 +3,8 @@ package pi;
 import java.util.ArrayList;
 
 public interface INode {
+	public String getName();
+	
 	public void addChild(INode child);
 	public void addParent(INode parent);
 	

@@ -120,8 +120,11 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 			// Retrieve node from local stack and store it in buffer
 			V node = getLocalNode();
 			if (node != null) {
+				
 				buffer[id][0] = node;
 				processedNodes.add(node);
+				
+				@SuppressWarnings("unchecked")
 				Iterator<V> it = graph.getChildrenList(node).iterator();
 				// push the successors (children) into the local stack
 				while (it.hasNext()) {
@@ -199,7 +202,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 		// add it to waiting list and call method again of the target
 		if(currentStackNode != null){
 			
-			print(graph.getParentsList(currentStackNode));
+			//print(graph.getParentsList(currentStackNode));
 			
 			if(processedNodes.containsAll(graph.getParentsList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
 				return currentStackNode;

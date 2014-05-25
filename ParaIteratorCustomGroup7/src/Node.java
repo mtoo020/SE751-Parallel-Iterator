@@ -8,9 +8,10 @@ public class Node implements INode {
 	
 	private ArrayList<INode> children;
 	private ArrayList<INode> parents;
-	private String formula;
+	private String formula, name;
 	
-	public Node(String formula) {
+	public Node(String name, String formula) {
+		this.name = name;
 		this.formula = formula;
 		children = new ArrayList<INode>();
 		parents = new ArrayList<INode>();
@@ -36,6 +37,8 @@ public class Node implements INode {
 		return formula;
 	}
 
-
-	
+	@Override
+	public String getName() {
+		return name;
+	}	
 }
