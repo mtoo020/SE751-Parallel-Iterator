@@ -31,6 +31,13 @@ public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 	}
 	
 	public INode getRoot() {
-		return nodes.get(0);
+		// TODO Need to refactor this so the root is only calculated once somewhere.
+		// We do not want to loop everytime we want the root.
+		for(INode n : nodes){				
+			if(n.getParents().size() == 0){
+				return n;
+			}
+		}
+		return null;		
 	}
 }

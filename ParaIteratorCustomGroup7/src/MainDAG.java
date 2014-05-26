@@ -21,8 +21,23 @@ public class MainDAG {
 		
 		GraphAdapterInterface<INode, String> dag = new GraphAdapter(createNodesFromXLS("test.xls"));
 		
+		// Getting free nodes (leave nodes) manually from the DAG for testing purposes.
+		// Will need to make this get the free nodes automatically.
+		List<INode> startNodeList = new ArrayList<INode>();
+		INode root  = dag.getRoot();
+		ArrayList<INode> nodeList = dag.getChildrenList(root);
+		
+		for(INode n : nodeList){
+			startNodeList.add(n);
+		}
+		// --------------------------------------------
+		
+				
+		//@SuppressWarnings("unchecked")
+		//ParIterator<INode> p_old = ParIteratorFactory.getTreeParIteratorDFSonDAGTopBottom(dag, dag.getRoot(), threadCount);
+		
 		@SuppressWarnings("unchecked")
-		ParIterator<INode> pi = ParIteratorFactory.getTreeParIteratorDFSonDAGTopBottom(dag, dag.getRoot(), threadCount);
+		ParIterator<INode> pi = ParIteratorFactory.getTreeIteratorBFSonDAGBottomTop(dag, dag.getRoot(), startNodeList, threadCount, chunkSize);
 		
 		// Create and start a pool of worker threads
 		Thread[] threadPool = new WorkerThread[threadCount];
@@ -58,13 +73,12 @@ public class MainDAG {
 				if (isFormulaCell(cell)) {
 					FormulaCell fc = (FormulaCell)cell;
 					INode node = new Node(getCellName(cell),fc.getFormula());
-					for (String cellref : fc.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {						
-						node.addChild(new Node(cellref, getCellFormula(cellref, sheet)));
+					for (String cellref : fc.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {								
+						INode child = new Node(cellref, getCellFormula(cellref, sheet));
+						node.addChild(child);
+						list.add(child);
 					}
 					list.add(node);
-				}
-				else if (isNumberCell(cell)) {
-					list.add(new Node(getCellName(cell), cell.getContents()));
 				}
 			}
 		}

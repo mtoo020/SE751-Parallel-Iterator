@@ -209,8 +209,8 @@ public class ParIteratorFactory<E> {
 	 * @return				An instance of <code>ParIterator</code>.
 	 */
 	public static <V> ParIterator getTreeParIteratorBFSonDAGBottomTop(GraphAdapterInterface graph,
-			V root, int numOfThreads, int chunkSize) {
-		return getTreeIteratorBFSonDAGBottomTop(graph, root, numOfThreads, chunkSize);
+			V root, List<V> freeNodeList, int numOfThreads, int chunkSize) {
+		return getTreeIteratorBFSonDAGBottomTop(graph, root, freeNodeList, numOfThreads, chunkSize);
 
 	}	
 	
@@ -250,8 +250,8 @@ public class ParIteratorFactory<E> {
 	}
 	
 	public static <V> ParIterator getTreeIteratorBFSonDAGBottomTop(GraphAdapterInterface tree,
-			V root, int numOfThreads, int chunkSize) {
-		return new BFSonDAGBottomTop(tree, root, numOfThreads, chunkSize);
+			V root, List<V> freeNodeList, int numOfThreads, int chunkSize) {
+		return new BFSonDAGBottomTop(tree, root, freeNodeList, numOfThreads, chunkSize);
 	}
 
 	public static ParIterator<INode> getTreeParIteratorDFSonDAGBottomTop(
