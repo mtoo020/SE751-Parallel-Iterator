@@ -48,7 +48,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 
 	private GraphAdapterInterface graph;
 
-	private V root;
+//	private V root;
 
 	private LinkedBlockingDeque<V> freeNodeStack;
 
@@ -66,12 +66,11 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 * @param numOfThreads - number of threads running
 	 * @param chunkSize - max number of nodes assigned to a thread at a time.
 	 */
-	public BFSonDAGBottomTop(GraphAdapterInterface graph, V root,  List<V> startNodeList,
-			int numOfThreads, int chunkSize) {
+	public BFSonDAGBottomTop(GraphAdapterInterface graph, List<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
 		this.chunkSize = chunkSize;
 		this.graph = graph;
-		this.root = root;
+//		this.root = root;
 		this.freeNodeStack = new LinkedBlockingDeque<V>();
 		numTreeNodes = graph.verticesSet().size();
 		
@@ -85,7 +84,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		localChunkStack = new ConcurrentHashMap<Integer, LinkedBlockingDeque<V>>();
 		
 		// Initialise freeNodeStack with the nodes from the startNodeList
-		for(V n : startNodeList){
+		for(V n : startNodes){
 			freeNodeStack.add(n);
 		}
 	

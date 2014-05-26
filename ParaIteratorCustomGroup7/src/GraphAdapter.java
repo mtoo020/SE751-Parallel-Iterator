@@ -1,5 +1,4 @@
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -9,9 +8,11 @@ import pi.INode;
 public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 
 	private ArrayList<INode> nodes;
-	
-	public GraphAdapter(ArrayList<INode> nodes) {
+	private ArrayList<INode> startNodes;
+
+	public GraphAdapter(ArrayList<INode> nodes, ArrayList<INode> startNodes) {
 		this.nodes = nodes;
+		this.startNodes = startNodes;
 	}
 
 	public ArrayList<INode> getChildrenList(Object v) {
@@ -29,15 +30,8 @@ public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 	public Collection<String> edgesSet() {
 		return null;
 	}
-	
-	public INode getRoot() {
-		// TODO Need to refactor this so the root is only calculated once somewhere.
-		// We do not want to loop everytime we want the root.
-		for(INode n : nodes){				
-			if(n.getParents().size() == 0){
-				return n;
-			}
-		}
-		return null;		
+
+	public ArrayList<INode> getStartNodes() {
+		return startNodes;
 	}
 }

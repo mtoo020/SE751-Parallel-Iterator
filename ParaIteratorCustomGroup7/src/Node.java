@@ -19,7 +19,6 @@ public class Node implements INode {
 
 	public void addChild(INode child){
 		children.add(child);
-		child.addParent(this);
 	}
 	
 	public void addParent(INode parent){
