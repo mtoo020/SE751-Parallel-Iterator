@@ -64,7 +64,7 @@ public class XLSParser implements Parser {
 					if (childNode == null) {
 						System.out.println("Cell reference (" + operand + ") not found");
 					}
-					//add the node as a parent
+					//add the node as a child
 					formulaNode.addChild(childNode);
 					childNode.addParent(formulaNode);
 					hasCellReferences = true;
