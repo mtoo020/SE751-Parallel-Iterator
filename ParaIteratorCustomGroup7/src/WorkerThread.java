@@ -16,7 +16,7 @@ public class WorkerThread extends Thread {
 	public void run() {
 		while (pi.hasNext()) {
 			INode element = pi.next();
-			System.out.println("Hello from Thread "+id+", who got node: " + element.getName() +" and formula: "+element.getFormula());
+			System.out.println("Hello from Thread "+id+", who got node: " + element.getName() +" with first parent: "+element.getParents().get(0).getName());
 			
 			
 			// slow down the threads (to illustrate the scheduling)

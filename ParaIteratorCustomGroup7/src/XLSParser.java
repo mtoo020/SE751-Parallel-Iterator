@@ -54,19 +54,19 @@ public class XLSParser implements Parser {
 			}
 		}
 		
-		//define parents for each formula node based on its cell references (formulas refer to their parents)
+		//define children for each formula node based on its cell references
 		for (INode formulaNode : formulaNodes) {
 			boolean hasCellReferences = false;
 			for (String operand : formulaNode.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {
 				//if the formula refers to another cell
 				if ('A' <= operand.charAt(0) && operand.charAt(0) <= 'Z') {
-					INode parentNode = nodes.get(operand);
-					if (parentNode == null) {
+					INode childNode = nodes.get(operand);
+					if (childNode == null) {
 						System.out.println("Cell reference (" + operand + ") not found");
 					}
 					//add the node as a parent
-					formulaNode.addParent(parentNode);
-					parentNode.addChild(formulaNode);
+					formulaNode.addChild(childNode);
+					childNode.addParent(formulaNode);
 					hasCellReferences = true;
 				}
 			}
