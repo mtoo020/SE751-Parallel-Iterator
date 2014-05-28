@@ -33,7 +33,7 @@ public class Node implements INode {
 		return parents;
 	}
 
-	public String getFormula() {
+	public String getData() {
 		return formula;
 	}
 

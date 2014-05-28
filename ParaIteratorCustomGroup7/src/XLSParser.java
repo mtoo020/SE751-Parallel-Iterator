@@ -57,7 +57,7 @@ public class XLSParser implements Parser {
 		//define children for each formula node based on its cell references
 		for (INode formulaNode : formulaNodes) {
 			boolean hasCellReferences = false;
-			for (String operand : formulaNode.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {
+			for (String operand : ((String)formulaNode.getData()).split("\\+|\\-|\\*|\\/|\\^|\\%")) {
 				//if the formula refers to another cell
 				if ('A' <= operand.charAt(0) && operand.charAt(0) <= 'Z') {
 					INode childNode = nodes.get(operand);
