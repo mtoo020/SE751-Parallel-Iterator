@@ -22,10 +22,8 @@ public class XLSParser implements Parser {
 	}
 
 	public GraphAdapterInterface<INode, String> parse() {
-		ArrayList<INode> nodes = new ArrayList<INode>();
+		HashMap<String, INode> nodes = new HashMap<String, INode>();
 		ArrayList<INode> leaves = new ArrayList<INode>();
-		
-		HashMap<String, INode> nodeMap = new HashMap<String, INode>();
 		ArrayList<INode> formulaNodes = new ArrayList<INode>();
 
 		Sheet sheet = workbook.getSheet(0);
@@ -35,8 +33,6 @@ public class XLSParser implements Parser {
 		//- only looks at cells with numbers or number formulas
 		//- only handles "+ - * / ^ %" operations - no brackets or functions
 		//- only works with columns A-Z
-		//- has to add all nodeMap elements into an ArrayList at the end (duplication of effort)
-		//- could be solved if GraphAdapter accepted a Collection
 
 		//visit and cells and store nodes
 		for (int i = 0; i < sheet.getColumns(); i++) {
@@ -45,31 +41,32 @@ public class XLSParser implements Parser {
 				if (cell.getType() == CellType.NUMBER_FORMULA) {
 					try {
 						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
-						nodeMap.put(formulaNode.getName(), formulaNode);
+						nodes.put(formulaNode.getName(), formulaNode);
 						formulaNodes.add(formulaNode);
 					} catch (FormulaException e) {
 						e.printStackTrace();
 					}
 				} else if (cell.getType() == CellType.NUMBER) {
 					INode numberNode = new Node(getName(cell), cell.getContents());
-					nodeMap.put(numberNode.getName(), numberNode);
+					nodes.put(numberNode.getName(), numberNode);
 					leaves.add(numberNode);
 				}
 			}
 		}
 		
-		//define parents for each cell based on cell references (formulas refer to their parents)
+		//define parents for each formula node based on its cell references (formulas refer to their parents)
 		for (INode formulaNode : formulaNodes) {
 			boolean hasCellReferences = false;
 			for (String operand : formulaNode.getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {
 				//if the formula refers to another cell
 				if ('A' <= operand.charAt(0) && operand.charAt(0) <= 'Z') {
-					INode parentNode = nodeMap.get(operand);
+					INode parentNode = nodes.get(operand);
 					if (parentNode == null) {
 						System.out.println("Cell reference (" + operand + ") not found");
 					}
-					parentNode.addChild(formulaNode);
+					//add the node as a parent
 					formulaNode.addParent(parentNode);
+					parentNode.addChild(formulaNode);
 					hasCellReferences = true;
 				}
 			}
@@ -78,8 +75,7 @@ public class XLSParser implements Parser {
 			}
 		}
 	
-		nodes.addAll(nodeMap.values());
-		return new GraphAdapter(nodes, leaves);
+		return new GraphAdapter(nodes.values(), leaves);
 	}
 
 	private static String getName(Cell cell) {

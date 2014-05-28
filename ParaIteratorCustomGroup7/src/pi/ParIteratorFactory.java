@@ -250,7 +250,7 @@ public class ParIteratorFactory<E> {
 	}
 	
 	public static <V> ParIterator getTreeIteratorBFSonDAGBottomTop(GraphAdapterInterface tree,
-			List<V> startNodes, int numOfThreads, int chunkSize) {
+			Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		return new BFSonDAGBottomTop(tree, startNodes, numOfThreads, chunkSize);
 	}
 

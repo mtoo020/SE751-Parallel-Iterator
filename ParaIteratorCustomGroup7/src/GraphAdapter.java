@@ -7,10 +7,10 @@ import pi.INode;
 
 public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 
-	private ArrayList<INode> nodes;
-	private ArrayList<INode> startNodes;
+	private Collection<INode> nodes;
+	private Collection<INode> startNodes;
 
-	public GraphAdapter(ArrayList<INode> nodes, ArrayList<INode> startNodes) {
+	public GraphAdapter(Collection<INode> nodes, Collection<INode> startNodes) {
 		this.nodes = nodes;
 		this.startNodes = startNodes;
 	}
@@ -31,7 +31,7 @@ public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 		return null;
 	}
 
-	public ArrayList<INode> getStartNodes() {
+	public Collection<INode> getStartNodes() {
 		return startNodes;
 	}
 }

@@ -1,6 +1,7 @@
 package pi;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -66,7 +67,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 * @param numOfThreads - number of threads running
 	 * @param chunkSize - max number of nodes assigned to a thread at a time.
 	 */
-	public BFSonDAGBottomTop(GraphAdapterInterface graph, List<V> startNodes, int numOfThreads, int chunkSize) {
+	public BFSonDAGBottomTop(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
 		this.chunkSize = chunkSize;
 		this.graph = graph;

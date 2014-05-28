@@ -26,7 +26,7 @@ import java.util.Collection;
 public interface GraphAdapterInterface<V, E> {
 
 	//returns the start nodes (either roots or leaves)
-	public ArrayList<INode> getStartNodes();
+	public Collection<INode> getStartNodes();
 	
 	//returns the successors of v
 	public ArrayList<V> getChildrenList(Object v);
