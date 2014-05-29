@@ -7,21 +7,12 @@ import pi.ParIteratorFactory;
 
 public class MainDAG {
 	public static void main(String[] args) throws Exception {
-		int threadCount = 3;
-		int chunkSize = 3;
+		int threadCount = 4;
+		int chunkSize = 32;
 
 		GraphAdapterInterface<INode, String> dag = new XLSParser("test2.xls").parse();
 		
-//		INode root = null;
-//		for(INode node : dag.verticesSet()){
-//			System.out.println(node.getName());
-//			if(node.getName().equals("D1")){
-//				root = node;
-//			}
-//		}
-		
-		//@SuppressWarnings("unchecked")
-		//ParIterator<INode> p_old = ParIteratorFactory.getTreeParIteratorDFSonDAGTopBottom(dag, root, threadCount);
+		long start = System.currentTimeMillis();
 		
 		@SuppressWarnings("unchecked")
 		ParIterator<INode> pi = ParIteratorFactory.getTreeIteratorBFSonDAGBottomTop(dag, dag.getStartNodes(), threadCount, chunkSize);
@@ -45,7 +36,10 @@ public class MainDAG {
 				e.printStackTrace();
 			}
 		}
-
+		
+		long end = System.currentTimeMillis();
+		
 		System.out.println("All worker threads have completed.");
+		System.out.println("Time taken: "+(end - start)+" miliseconds");
 	}
 }

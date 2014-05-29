@@ -26,10 +26,7 @@ public class WorkerThread extends Thread {
 			
 			// slow down the threads (to illustrate the scheduling)
 			try {
-				if (id % 2 == 0)
-					Thread.sleep(50);
-				if (id % 1 == 0)
-					Thread.sleep(1000);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
