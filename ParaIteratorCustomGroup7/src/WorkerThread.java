@@ -1,4 +1,6 @@
  
+import java.util.concurrent.atomic.AtomicInteger;
+
 import pi.INode;
 import pi.ParIterator;
 import pi.reductions.Reducible;
@@ -7,23 +9,26 @@ public class WorkerThread extends Thread {
 		
 	private ParIterator<INode> pi;
 	private int id = -1;
-
-	public WorkerThread(int id, ParIterator<INode> pi) {
+	private AtomicInteger atomicInt;
+	
+	public WorkerThread(int id, ParIterator<INode> pi, AtomicInteger atomicInt) {
 		this.id = id;
 		this.pi = pi;
+		this.atomicInt = atomicInt;
 	}
 
 	public void run() {
 		while (pi.hasNext()) {
 			INode element = pi.next();
-			System.out.println("Hello from Thread "+id+", who got node: " + element.getName() +" which has the data "+element.getData());
+			//System.out.println(atomicInt.getAndIncrement()+" Hello from Thread "+id+", who got node: " + element.getName() +" which has the data "+element.getData());
 			
+			System.out.println(atomicInt.getAndIncrement()+" element "+element.getName() + " given to thread "+id);
 			
 			// slow down the threads (to illustrate the scheduling)
 			try {
-				if (id == 0)
+				if (id % 2 == 0)
 					Thread.sleep(50);
-				if (id == 1)
+				if (id % 1 == 0)
 					Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();

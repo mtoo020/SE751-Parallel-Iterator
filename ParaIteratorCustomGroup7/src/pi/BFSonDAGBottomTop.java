@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import pi.util.ThreadID;
 
@@ -60,6 +61,8 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	
 	private AtomicInteger stealingThreads = new AtomicInteger(0);
 
+	private final ReentrantLock lock = new ReentrantLock();
+
 	/**
 	 * 
 	 * @param graph - DAG graph that is being iterated over
@@ -105,84 +108,61 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		}
 		return permissionTable;
 	}
-
+	
 	@Override
 	public boolean hasNext() {
-		int id = threadID.get();
-		
-		if(permissionTable[id]){
-			//System.out.println("Thread "+id+" wants nodes to process.");
-						
-			// Grab one free node if possible then attempt to grab parent nodes of the first node.
-			if(freeNodeStack.size() != 0){
+		if(breakAll.get() == false){
+			int id = threadID.get();
+			
+			if(permissionTable[id]){ // Get free nodes.
 				V node = null;
+
+				lock.lock();
+				node = freeNodeStack.poll();
+				lock.unlock();
 				
-				// Store first available free node in thread's local stack.
-				node = freeNodeStack.pollFirst();
-				localChunkStack.get(id).offerFirst(node);
-				
-				while(localChunkStack.get(id).size() < chunkSize){					
-					@SuppressWarnings("unchecked")
-					Iterator<V> it = graph.getParentsList(node).iterator();
-					
-					// Push the parent nodes into the local stack if there is space.
-					while(it.hasNext()){
-						V nextNode = it.next();
-						if(!localChunkStack.get(id).contains(nextNode)){
-							localChunkStack.get(id).offerFirst(nextNode);
-						}
+				if(node != null){
+					if(!processedNodes.contains(node)){
+						localChunkStack.get(id).push(node);
 					}
 				}
-
-				permissionTable[id] = false;
-			}else{
-				System.out.println("Thread "+id+" has no free nodes to process.");
 			}
-		}		
-				
-		if(breakAll.get() ==  false){
-						
-			// Retrieve node from local stack and store it in buffer
-			V node = getLocalNode();
-			if(node != null){
-				buffer[id][0] = node;
-				permissionTable[id] = true;
+			
+			V nextNode = getLocalNode();
+			if(nextNode != null){
+				buffer[id][0] = nextNode;
+				processedNodes.add(nextNode);
+				checkFreeNodes(nextNode);
 				return true;
 			}
+			
+			if(processedNodes.size() == numTreeNodes){
+				return false;
+			}
 		}
-		
-		// Check if all DAG nodes have been processed.
-		if(processedNodes.size() == graph.verticesSet().size()){
-			return false;
-		}else{
-			return true;
-		}
-		
+		return false;
 	}
-
+	
 	/**
 	 * @return node from the local stack of the thread.
 	 */
-	private V getLocalNode() {
+	private synchronized V getLocalNode() {
 		int id = threadID.get();	
+
+		V localNode = localChunkStack.get(id).poll();
 		
-		Iterator<V> it = localChunkStack.get(id).iterator();
-		while(it.hasNext()){			
-			V localNode = it.next();
-			
-			synchronized(processedNodes){
-				if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
-					processedNodes.add(localNode);					
-					localChunkStack.get(id).remove(localNode);
-					checkFreeNodes(localNode);
-					
-					return localNode;
-				}
+		if(localNode != null){
+			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
+				return localNode;
+			}else{
+				waitingList.add(localNode);
+				return getLocalNode();
 			}
+		}else{
+			return null;
 		}
-		
-		return null;
 	}
+
 	
 	/**
 	 * Check if any of the parents (nodes to be processed next) have become free nodes.
@@ -200,6 +180,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			if(processedNodes.containsAll(graph.getChildrenList(parent)) && !processedNodes.contains(parent)){
 				// Parent has become a free node.
 				freeNodeStack.offerLast(parent);
+				
 			}
 		}
 		
