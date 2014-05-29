@@ -89,6 +89,8 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			freeNodeStack.add(n);
 		}
 		
+		System.out.println(freeNodeStack.size());
+		
 		for (int i = 0; i < numOfThreads; i++) {
 			localChunkStack.put(i, new LinkedBlockingDeque<V>(chunkSize));
 		}
@@ -137,10 +139,9 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 				System.out.println("Thread "+id+" has no free nodes to process.");
 			}
 		}		
-		
-		//System.out.println("Thread: "+id+" LocalChunkStack size: "+localChunkStack.get(id).size());
-		
-		if(breakAll.get() ==  false){			
+				
+		if(breakAll.get() ==  false){
+						
 			// Retrieve node from local stack and store it in buffer
 			V node = getLocalNode();
 			if(node != null){
@@ -150,32 +151,65 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			}
 		}
 		
-		return false;
+		// Check if all DAG nodes have been processed.
+		if(processedNodes.size() == graph.verticesSet().size()){
+			return false;
+		}else{
+			return true;
+		}
+		
 	}
 
 	/**
 	 * @return node from the local stack of the thread.
 	 */
 	private V getLocalNode() {
-		int id = threadID.get();
-		V currentStackNode = localChunkStack.get(id).pollLast();
+		int id = threadID.get();	
 		
-		if(currentStackNode != null){
+		Iterator<V> it = localChunkStack.get(id).iterator();
+		while(it.hasNext()){			
+			V localNode = it.next();
+			
 			synchronized(processedNodes){
-				if(processedNodes.containsAll(graph.getChildrenList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
-					processedNodes.add(currentStackNode);
-					return currentStackNode;
+				if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
+					processedNodes.add(localNode);					
+					localChunkStack.get(id).remove(localNode);
+					checkFreeNodes(localNode);
+					
+					return localNode;
 				}
 			}
 		}
+		
 		return null;
+	}
+	
+	/**
+	 * Check if any of the parents (nodes to be processed next) have become free nodes.
+	 * @param node
+	 */
+	private void checkFreeNodes(V node){
+		int id = threadID.get();
+
+		@SuppressWarnings("unchecked")
+		Iterator<V> it = graph.getParentsList(node).iterator();
+		
+		V parent;
+		while(it.hasNext()){	
+			parent = it.next();
+			if(processedNodes.containsAll(graph.getChildrenList(parent)) && !processedNodes.contains(parent)){
+				// Parent has become a free node.
+				freeNodeStack.offerLast(parent);
+			}
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public V next() {
 		int id = threadID.get();
-		V nextNode = (V) buffer[id][0];
+		V nextNode = (V) buffer[id][0];		
 		return nextNode;
 	}
 
