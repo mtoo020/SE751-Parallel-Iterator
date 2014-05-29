@@ -114,16 +114,26 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		if(breakAll.get() == false){
 			int id = threadID.get();
 			
+			if(localChunkStack.get(id).size() == 0){
+				permissionTable[0] = true;
+			}else{
+				permissionTable[0] = false;
+			}
+			
+			// Retrieve free nodes to fill up chunk size quota.
 			if(permissionTable[id]){ // Get free nodes.
-				V node = null;
-
-				lock.lock();
-				node = freeNodeStack.poll();
-				lock.unlock();
-				
-				if(node != null){
-					if(!processedNodes.contains(node)){
-						localChunkStack.get(id).push(node);
+				for(int i = 0; i < chunkSize; i++){
+					// Prevent retrieval of free nodes if chunk size quota has been filled.
+					if(localChunkStack.get(id).size() < chunkSize){ 
+						lock.lock();
+						V node = freeNodeStack.poll();
+						lock.unlock();
+						
+						if(node != null){
+							if(!processedNodes.contains(node)){
+								localChunkStack.get(id).push(node);
+							}
+						}
 					}
 				}
 			}
@@ -153,6 +163,11 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		
 		if(localNode != null){
 			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
+				
+				if(localChunkStack.get(id).size() < chunkSize){
+					permissionTable[0] = true;
+				}
+				
 				return localNode;
 			}else{
 				waitingList.add(localNode);
@@ -183,7 +198,6 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 				
 			}
 		}
-		
 	}
 
 	@SuppressWarnings("unchecked")

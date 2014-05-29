@@ -7,7 +7,7 @@ import pi.ParIteratorFactory;
 
 public class MainDAG {
 	public static void main(String[] args) throws Exception {
-		int threadCount = 4;
+		int threadCount = 3;
 		int chunkSize = 3;
 
 		GraphAdapterInterface<INode, String> dag = new XLSParser("test2.xls").parse();
