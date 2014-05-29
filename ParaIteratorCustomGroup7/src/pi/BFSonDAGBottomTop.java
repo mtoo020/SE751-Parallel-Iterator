@@ -2,6 +2,7 @@ package pi;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -35,7 +36,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 
 	// Stores a boolean value for each thread to indicate whether
 	// the thread should be assigned with work or not
-	private volatile boolean[][] permissionTable;
+	private volatile boolean[] permissionTable;
 
 	private final int chunkSize;
 
@@ -78,7 +79,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		System.out.println("Total Nodes: " + numTreeNodes);
 		
 		buffer = new Object[numOfThreads][1];
-		permissionTable = new boolean[numOfThreads][1];
+		permissionTable = new boolean[numOfThreads];
 		permissionTable = initializePermissionTable(permissionTable);
 		processedNodes = new ConcurrentLinkedQueue<V>();
 		waitingList = new ConcurrentLinkedQueue<V>();
@@ -88,7 +89,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		for(V n : startNodes){
 			freeNodeStack.add(n);
 		}
-	
+			
 		for (int i = 0; i < numOfThreads; i++) {
 			localChunkStack.put(i, new LinkedBlockingDeque<V>(chunkSize));
 		}
@@ -97,9 +98,9 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	}
 	
 	// Give all threads permission at the start.
-	private boolean[][] initializePermissionTable(boolean[][] permissionTable) {
+	private boolean[] initializePermissionTable(boolean[] permissionTable) {
 		for (int i = 0; i < numOfThreads; i++) {
-			permissionTable[i][0] = true;
+			permissionTable[i] = true;
 		}
 		return permissionTable;
 	}
@@ -108,38 +109,45 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	public boolean hasNext() {
 		int id = threadID.get();
 		
-		if(permissionTable[id][0]){		
-			// Thread grabs a free node from the freeNodeStack until the localChunkStack
-			// is filled up or there are no more free nodes available.
-			while(localChunkStack.get(id).size() != chunkSize){
-				if(freeNodeStack.size() == 0){
-					break; // Break since there are no more free nodes to assign to this thread.
-				}else{					
-					try{
-						// Store free node in thread's local stack.
-						localChunkStack.get(id).offerFirst(freeNodeStack.pollFirst());
-					}catch (NullPointerException e){
-						
+		if(permissionTable[id]){
+			//System.out.println("Thread "+id+" wants nodes to process.");
+			
+			// Grab one free node if possible then attempt to grab parent nodes of the first node.
+			if(freeNodeStack.size() != 0){
+				V node = null;
+				
+				// Store first available free node in thread's local stack.
+				node = freeNodeStack.pollFirst();
+				localChunkStack.get(id).offerFirst(node);
+				
+				while(localChunkStack.get(id).size() < chunkSize){
+					@SuppressWarnings("unchecked")
+					Iterator<V> it = graph.getParentsList(node).iterator();
+					
+					// Push the parent nodes into the local stack if there is space.
+					while(it.hasNext()){
+						V nextNode = it.next();
+						if(!localChunkStack.get(id).contains(nextNode)){
+							localChunkStack.get(id).offerFirst(nextNode);
+						}
 					}
 				}
+
+				permissionTable[id] = false;
+			}else{
+				System.out.println("Thread "+id+" has no free nodes to process.");
 			}
-			
-			permissionTable[id][0] = false;
-			
 		}		
 		
 		//System.out.println("Thread: "+id+" LocalChunkStack size: "+localChunkStack.get(id).size());
 		
-		if(breakAll.get() ==  false){
-			
+		if(breakAll.get() ==  false){			
 			// Retrieve node from local stack and store it in buffer
 			V node = getLocalNode();
 			if(node != null){
 				buffer[id][0] = node;
-				processedNodes.add(node);
-				
 				return true;
-			}			
+			}
 		}
 		
 		return false;
@@ -153,9 +161,10 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		V currentStackNode = localChunkStack.get(id).pollLast();
 		
 		if(currentStackNode != null){
-			return currentStackNode;
+			if(processedNodes.containsAll(graph.getChildrenList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
+				return currentStackNode;
+			}
 		}
-		
 		return null;
 	}
 
@@ -163,7 +172,15 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	@Override
 	public V next() {
 		int id = threadID.get();
-		return (V) buffer[id][0];
+		
+		V nextNode = (V) buffer[id][0];
+		synchronized(processedNodes){
+			if(!processedNodes.contains(nextNode)){
+				processedNodes.add(nextNode);
+			}
+		}
+		
+		return nextNode;
 	}
 
 	@Override
