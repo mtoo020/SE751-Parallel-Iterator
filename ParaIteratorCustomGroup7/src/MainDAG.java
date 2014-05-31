@@ -15,7 +15,7 @@ public class MainDAG {
 		long start = System.currentTimeMillis();
 		
 		@SuppressWarnings("unchecked")
-		ParIterator<INode> pi = ParIteratorFactory.getTreeIteratorBFSonDAGBottomTop(dag, dag.getStartNodes(), threadCount, chunkSize);
+		ParIterator<INode> pi = ParIteratorFactory.getParIteratorGuidedBFSonDAGBottomTop(dag, dag.getStartNodes(), threadCount, chunkSize);
 		
 		AtomicInteger atomicInt = new AtomicInteger(1);
 		

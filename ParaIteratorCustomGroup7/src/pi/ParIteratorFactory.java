@@ -214,6 +214,11 @@ public class ParIteratorFactory<E> {
 
 	}	
 	
+	public static <V> ParIterator getParIteratorGuidedBFSonDAGBottomTop(GraphAdapterInterface graph,
+			List<V> startNodes, int numOfThreads, int chunkSize){
+		return getParIteratorGuidedBFSonDAGBottomTop(graph,startNodes, numOfThreads, chunkSize);
+	}
+	
 	/*
 	 * This method instantiates the right class based on the parameters passed by the user
 	 * @return an instance of the required class that represents the required schedule scheme 
@@ -252,6 +257,11 @@ public class ParIteratorFactory<E> {
 	public static <V> ParIterator getTreeIteratorBFSonDAGBottomTop(GraphAdapterInterface tree,
 			Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		return new BFSonDAGBottomTop(tree, startNodes, numOfThreads, chunkSize);
+	}
+	
+	public static <V> ParIterator getParIteratorGuidedBFSonDAGBottomTop(GraphAdapterInterface tree,
+			Collection<V> startNodes, int numOfThreads, int chunkSize) {
+		return new GuidedBFSonDAGBottomTop(tree, startNodes, numOfThreads, chunkSize);
 	}
 
 	public static ParIterator<INode> getTreeParIteratorDFSonDAGBottomTop(
