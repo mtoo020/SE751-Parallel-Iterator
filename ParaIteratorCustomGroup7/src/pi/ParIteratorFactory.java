@@ -248,7 +248,7 @@ public class ParIteratorFactory<E> {
 				System.out.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
 				return new DynamicBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
 			case GUIDED:
-				return new GuidedBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+				return new GuidedBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
 			case DYNAMIC:
 				return new DynamicBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
 			case MEMORYAWARE:
