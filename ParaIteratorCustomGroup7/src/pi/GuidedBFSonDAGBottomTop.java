@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import pi.util.ThreadID;
 
-public class GuidedBFSonDAGBottomTop<V> extends BFSonDAGBottomTop<V> {
+public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 
 	private final int minChunkSize;
 	private static int currentChunkSize = 0;

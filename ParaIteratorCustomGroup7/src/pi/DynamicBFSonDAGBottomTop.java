@@ -26,7 +26,7 @@ import pi.util.ThreadID;
  * @author SE750 - 2014 - Group 7 - Amruth Akoju, Mark Tooley, Kyle Jung based
  *         on DFS iterators created by Lama Akeila.
  */
-public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
+public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	// Stores the object to be retrieved when calling the next method.
 	protected Object[][] buffer;
 
@@ -71,7 +71,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 * @param numOfThreads - number of threads running
 	 * @param chunkSize - max number of nodes assigned to a thread at a time.
 	 */
-	public BFSonDAGBottomTop(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
+	public DynamicBFSonDAGBottomTop(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
 		this.chunkSize = chunkSize;
 		this.graph = graph;
