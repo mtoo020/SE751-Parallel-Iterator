@@ -115,9 +115,9 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			int id = threadID.get();
 			
 			if(localChunkStack.get(id).size() == 0){
-				permissionTable[0] = true;
+				permissionTable[id] = true;
 			}else{
-				permissionTable[0] = false;
+				permissionTable[id] = false;
 			}
 			
 			// Retrieve free nodes to fill up chunk size quota.
