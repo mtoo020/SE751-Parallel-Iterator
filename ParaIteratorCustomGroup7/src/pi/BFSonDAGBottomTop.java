@@ -28,40 +28,40 @@ import pi.util.ThreadID;
  */
 public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	// Stores the object to be retrieved when calling the next method.
-	private Object[][] buffer;
+	protected Object[][] buffer;
 
 	// Maps each thread id to its local stack which holds the max amount
 	// specified by
 	// the Chunk size.
-	private ConcurrentHashMap<Integer, LinkedBlockingDeque<V>> localChunkStack;
+	protected ConcurrentHashMap<Integer, LinkedBlockingDeque<V>> localChunkStack;
 
 	// Stores a boolean value for each thread to indicate whether
 	// the thread should be assigned with work or not
-	private volatile boolean[] permissionTable;
+	protected volatile boolean[] permissionTable;
 
-	private final int chunkSize;
+	protected final int chunkSize;
 
-	private CountDownLatch latch;
+	protected CountDownLatch latch;
 
-	private int processedNodesNum = 0;
+	protected int processedNodesNum = 0;
 
-	private int numTreeNodes = 0;
+	protected int numTreeNodes = 0;
 
-	private AtomicBoolean breakAll = new AtomicBoolean(false);
+	protected AtomicBoolean breakAll = new AtomicBoolean(false);
 
-	private GraphAdapterInterface graph;
+	protected GraphAdapterInterface graph;
 
 //	private V root;
 
-	private LinkedBlockingDeque<V> freeNodeStack;
+	protected LinkedBlockingDeque<V> freeNodeStack;
 
-	private ConcurrentLinkedQueue<V> processedNodes;
+	protected ConcurrentLinkedQueue<V> processedNodes;
 
-	private ConcurrentLinkedQueue<V> waitingList;
+	protected ConcurrentLinkedQueue<V> waitingList;
 	
-	private AtomicInteger stealingThreads = new AtomicInteger(0);
+	protected AtomicInteger stealingThreads = new AtomicInteger(0);
 
-	private final ReentrantLock lock = new ReentrantLock();
+	protected final ReentrantLock lock = new ReentrantLock();
 
 	/**
 	 * 
@@ -102,7 +102,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	}
 	
 	// Give all threads permission at the start.
-	private boolean[] initializePermissionTable(boolean[] permissionTable) {
+	protected boolean[] initializePermissionTable(boolean[] permissionTable) {
 		for (int i = 0; i < numOfThreads; i++) {
 			permissionTable[i] = true;
 		}
@@ -183,7 +183,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 * Check if any of the parents (nodes to be processed next) have become free nodes.
 	 * @param node
 	 */
-	private void checkFreeNodes(V node){
+	protected void checkFreeNodes(V node){
 		int id = threadID.get();
 
 		@SuppressWarnings("unchecked")
