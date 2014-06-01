@@ -16,12 +16,10 @@ import pi.util.ThreadID;
 
 /**
  * 
- * This class represents a Parallel Breath First Search (BFS) Iterator which
+ * This class represents a Parallel Breadth First Search (BFS) Iterator which
  * works on Directed Acyclic Graphs (DAGs). It returns nodes mainly in BFS order
  * from bottom to top of the DAG (i.e. Leaf nodes are returned first before the
  * Root).
- * 
- * It supports work-stealing when threads get idle.
  * 
  * @author SE750 - 2014 - Group 7 - Amruth Akoju, Mark Tooley, Kyle Jung based
  *         on DFS iterators created by Lama Akeila.

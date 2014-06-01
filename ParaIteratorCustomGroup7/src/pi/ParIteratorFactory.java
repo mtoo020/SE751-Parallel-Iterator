@@ -208,22 +208,57 @@ public class ParIteratorFactory<E> {
 	 * 
 	 * @return				An instance of <code>ParIterator</code>.
 	 */
+	
+	/**
+	 * This class represents a Parallel Breath First Search (BFS) Iterator which
+	 * works on Directed Acyclic Graphs (DAGs). It returns nodes mainly in BFS order
+	 * from bottom to top of the DAG (i.e. Leaf nodes are returned first before the
+	 * Root).
+	 * 
+	 * @param graph			The tree or DAG to be traversed in DFS
+	 * @param root			The starting node of the search (Will be replaced by starting nodes)
+	 * @param numOfThreads	The number of threads that will be sharing 
+	 *                      the DFS Parallel Iterator.
+	 * @param chunkSize		Max number of nodes a single thread can process at a single time.  
+	 * @param schedulePol   The scheduling policy used by the ParIterator
+	 * @param workStealing  Whether to allow threads stealing work from others when it is idle.
+	 * @return
+	 */
 	public static <V> ParIterator getTreeParIteratorBFSonDAGBottomTop(GraphAdapterInterface graph,
-			Collection<V> startNodes, int numOfThreads, int chunkSize, ParIterator.Schedule schedulePol ) {
+			Collection<V> startNodes, int numOfThreads, int chunkSize, ParIterator.Schedule schedulePol, boolean workStealing ) {
 		
-		switch (schedulePol) {
-		case STATIC:
-			System.out.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
-			return getTreeIteratorDynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
-		case GUIDED:
-			return getParIteratorGuidedBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
-		case DYNAMIC:
-			return getTreeIteratorDynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
-		case MEMORYAWARE:
-			System.out.println("Memory Aware is not available. Using Dynamic Scheduling.");
-			return getTreeIteratorDynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
-		default:
-			throw new RuntimeException("Unknown schedule: "+ schedulePol);
+		if(!workStealing){
+			switch (schedulePol) {
+			case STATIC:
+				System.out.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
+				return new DynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+			case GUIDED:
+				return new GuidedBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+			case DYNAMIC:
+				return new DynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+			case MEMORYAWARE:
+				System.out.println("Memory Aware is not available. Using Dynamic Scheduling.");
+				return new DynamicBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+			default:
+				throw new RuntimeException("Unknown schedule: "+ schedulePol);
+			}
+		}else{
+			switch (schedulePol) {
+			case STATIC:
+				System.out.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
+				return new DynamicBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
+			case GUIDED:
+				return new GuidedBFSonDAGBottomTop(graph, startNodes, numOfThreads, chunkSize);
+			case DYNAMIC:
+				return new DynamicBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
+			case MEMORYAWARE:
+				System.out.println("Memory Aware is not available. Using Dynamic Scheduling.");
+				return new DynamicBFSonDAGBottomTopWorkStealing(graph, startNodes, numOfThreads, chunkSize);
+			default:
+				throw new RuntimeException("Unknown schedule: "+ schedulePol);
+		}
+		
+
 	}
 
 	}	
@@ -266,16 +301,6 @@ public class ParIteratorFactory<E> {
 	public static <V> ParIterator getTreeIteratorDFSonDAGs(GraphAdapterInterface tree,
 			V root, int numOfThreads) {
 		return new DFSonDAGs(tree, root, numOfThreads);
-	}
-	
-	public static <V> ParIterator getTreeIteratorDynamicBFSonDAGBottomTop(GraphAdapterInterface tree,
-			Collection<V> startNodes, int numOfThreads, int chunkSize) {
-		return new DynamicBFSonDAGBottomTop(tree, startNodes, numOfThreads, chunkSize);
-	}
-	
-	public static <V> ParIterator getParIteratorGuidedBFSonDAGBottomTop(GraphAdapterInterface tree,
-			Collection<V> startNodes, int numOfThreads, int chunkSize) {
-		return new GuidedBFSonDAGBottomTop(tree, startNodes, numOfThreads, chunkSize);
 	}
 
 	public static ParIterator<INode> getTreeParIteratorDFSonDAGBottomTop(

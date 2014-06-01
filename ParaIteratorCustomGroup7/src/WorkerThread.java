@@ -1,4 +1,5 @@
  
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import pi.INode;
@@ -26,7 +27,11 @@ public class WorkerThread extends Thread {
 			
 			// slow down the threads (to illustrate the scheduling)
 			try {
-				Thread.sleep(10);
+				
+				Random rand = new Random();
+			    int randomNum = rand.nextInt((100 - 10) + 1) + 10;
+				
+				Thread.sleep(randomNum);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
