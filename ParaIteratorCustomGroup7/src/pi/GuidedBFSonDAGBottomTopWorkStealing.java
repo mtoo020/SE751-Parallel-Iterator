@@ -55,7 +55,7 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBotto
 						}else{ // Steal work (nodes) .
 							V stolenNode = null;
 							for (int j = 0; j < numOfThreads; j++) {
-								if(localChunkStack.get(id).size() < chunkSize){
+								if(localChunkStack.get(id).size() < currentChunkSize){
 									stolenNode = stealNode(j);
 									if (stolenNode != null){
 										System.out.println("Node stolen!");
