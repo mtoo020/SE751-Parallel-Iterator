@@ -51,8 +51,6 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 
 	protected GraphAdapterInterface graph;
 
-//	private V root;
-
 	protected LinkedBlockingDeque<V> freeNodeStack;
 
 	protected ConcurrentLinkedQueue<V> processedNodes;
@@ -147,10 +145,26 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			}
 			
 			if(processedNodes.size() == numTreeNodes){
+				exit(latch);
 				return false;
 			}
+			
 		}
+		exit(latch);
 		return false;
+	}
+	
+	/**
+	 * Threads call this method to exit.
+	 * @param latch
+	 */
+	protected void exit(CountDownLatch latch) {
+		latch.countDown(); // Sign off thread.
+		try {
+			latch.await(); // Wait for other threads to sign off.
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted Exception");
+		}
 	}
 	
 	/**
@@ -163,10 +177,8 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		
 		if(localNode != null){
 			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
-				
-				if(localChunkStack.get(id).size() < chunkSize){
-					permissionTable[0] = true;
-				}
+
+
 				
 				return localNode;
 			}else{

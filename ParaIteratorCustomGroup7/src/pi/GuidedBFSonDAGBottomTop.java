@@ -72,9 +72,11 @@ public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 			}
 			
 			if(processedNodes.size() == numTreeNodes){
+				exit(latch);
 				return false;
 			}
 		}
+		exit(latch);
 		return false;
 	}
 	
@@ -85,11 +87,6 @@ public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 		
 		if(localNode != null){
 			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
-				
-				if(localChunkStack.get(id).size() == 0){
-					permissionTable[0] = true;
-				}
-				
 				return localNode;
 			}else{
 				waitingList.add(localNode);
