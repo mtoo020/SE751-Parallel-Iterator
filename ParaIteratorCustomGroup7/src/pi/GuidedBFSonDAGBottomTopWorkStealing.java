@@ -52,26 +52,33 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBotto
 							if(!processedNodes.contains(node)){
 								localChunkStack.get(id).push(node);
 							}
-						}else{ // Steal work (nodes) .
-							V stolenNode = null;
-							for (int j = 0; j < numOfThreads; j++) {
-								if(localChunkStack.get(id).size() < currentChunkSize){
-									stolenNode = stealNode(j);
-									if (stolenNode != null){
-										System.out.println("Node stolen!");
-										
-										if(!processedNodes.contains(stolenNode)){
-											stolenNodeStack.get(id).push(stolenNode);
-											localChunkStack.get(id).push(stolenNode);
-										}
-									}else{
-										break;
-									}
-								}else{
-									break;
-								}
-								
+						}else{ // Attempt to steal work.
+							stealingThreads.incrementAndGet();
+							if(stealingThreads.get() == numOfThreads){
 								stealingThreads.decrementAndGet();
+								continue;
+							}else{ // Steal work (nodes) .
+								V stolenNode = null;
+								for (int j = 0; j < numOfThreads; j++) {
+									if(localChunkStack.get(id).size() < chunkSize){
+										stolenNode = stealNode(j);
+										if (stolenNode != null){
+											System.out.println("Thread: "+id+" stole the node "+((INode)stolenNode).getName()+" from Thread "+j);
+											
+											if(!processedNodes.contains(stolenNode)){
+												stolenNodeStack.push(stolenNode);
+												localChunkStack.get(id).push(stolenNode);
+												
+												break;
+											}
+										}else{
+											continue;
+										}
+									}
+									
+								}
+								stealingThreads.decrementAndGet();
+
 							}
 						}
 					}
