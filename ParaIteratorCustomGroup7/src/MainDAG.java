@@ -10,7 +10,7 @@ public class MainDAG {
 		int threadCount = 4;
 		int chunkSize = 32;
 
-		GraphAdapterInterface<INode, String> dag = new XLSParser("test2.xls").parse();
+		GraphAdapterInterface<INode, String> dag = new XLSImageParser("test4.xls").parse();
 		
 		long start = System.currentTimeMillis();
 		

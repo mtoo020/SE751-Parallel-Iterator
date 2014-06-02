@@ -40,7 +40,7 @@ public class XLSParser implements Parser {
 				Cell cell = sheet.getCell(i, j);
 				if (cell.getType() == CellType.NUMBER_FORMULA) {
 					try {
-						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
+						INode formulaNode = new Node(getName(cell), new ImageObject(((FormulaCell) cell).getFormula().toString()));
 						nodes.put(formulaNode.getName(), formulaNode);
 						formulaNodes.add(formulaNode);
 					} catch (FormulaException e) {
@@ -57,7 +57,7 @@ public class XLSParser implements Parser {
 		//define children for each formula node based on its cell references
 		for (INode formulaNode : formulaNodes) {
 			boolean hasCellReferences = false;
-			for (String operand : ((String)formulaNode.getData()).split("\\+|\\-|\\*|\\/|\\^|\\%")) {
+			for (String operand : ((ImageObject)formulaNode.getData()).getFormula().split("\\+|\\-|\\*|\\/|\\^|\\%")) {
 				//if the formula refers to another cell
 				if ('A' <= operand.charAt(0) && operand.charAt(0) <= 'Z') {
 					INode childNode = nodes.get(operand);
@@ -81,4 +81,6 @@ public class XLSParser implements Parser {
 	private static String getName(Cell cell) {
 		return "" + (char) (cell.getColumn() + 65) + (cell.getRow() + 1);
 	}
+	
+
 }

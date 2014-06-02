@@ -8,11 +8,12 @@ public class Node implements INode {
 
 	private ArrayList<INode> children;
 	private ArrayList<INode> parents;
-	private String name, formula;
+	private String name; 
+	private Object data;
 
-	public Node(String name, String formula) {
+	public Node(String name, Object data) {
 		this.name = name;
-		this.formula = formula;
+		this.data = data;
 		children = new ArrayList<INode>();
 		parents = new ArrayList<INode>();
 	}
@@ -21,8 +22,8 @@ public class Node implements INode {
 		return name;
 	}
 
-	public String getData() {
-		return formula;
+	public Object getData() {
+		return data;
 	}
 
 	public void addChild(INode child) {

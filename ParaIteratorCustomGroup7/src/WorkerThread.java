@@ -22,7 +22,7 @@ public class WorkerThread extends Thread {
 			INode element = pi.next();
 			//System.out.println(atomicInt.getAndIncrement()+" Hello from Thread "+id+", who got node: " + element.getName() +" which has the data "+element.getData());
 			
-			System.out.println(atomicInt.getAndIncrement()+"| Thread "+id+" is given Element "+element.getName()+" which has the data: "+element.getData());
+			System.out.println(atomicInt.getAndIncrement()+"| Thread "+id+" is given Element "+ element.getName()+" which has the data: "+((ImageObject)element.getData()).getImageLink());
 			
 			// slow down the threads (to illustrate the scheduling)
 			try {
