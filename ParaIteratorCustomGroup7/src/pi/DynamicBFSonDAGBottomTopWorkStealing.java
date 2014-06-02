@@ -26,7 +26,7 @@ import pi.util.ThreadID;
  * @author SE750 - 2014 - Group 7 - Amruth Akoju, Mark Tooley, Kyle Jung based
  *         on DFS iterators created by Lama Akeila.
  */
-public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
+public class DynamicBFSonDAGBottomTopWorkStealing<V> extends ParIteratorAbstract<V> {
 	// Stores the object to be retrieved when calling the next method.
 	protected Object[][] buffer;
 
@@ -51,8 +51,6 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 
 	protected GraphAdapterInterface graph;
 
-//	private V root;
-
 	protected LinkedBlockingDeque<V> freeNodeStack;
 
 	protected ConcurrentLinkedQueue<V> processedNodes;
@@ -62,6 +60,9 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	protected AtomicInteger stealingThreads = new AtomicInteger(0);
 
 	protected final ReentrantLock lock = new ReentrantLock();
+	
+	// Keep track of nodes stolen. Can be used to prevent stolen nodes from taken back by original owner thread.
+	protected LinkedBlockingDeque<V> stolenNodeStack;
 
 	/**
 	 * 
@@ -71,7 +72,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 * @param numOfThreads - number of threads running
 	 * @param chunkSize - max number of nodes assigned to a thread at a time.
 	 */
-	public BFSonDAGBottomTop(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
+	public DynamicBFSonDAGBottomTopWorkStealing(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
 		this.chunkSize = chunkSize;
 		this.graph = graph;
@@ -87,6 +88,8 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		waitingList = new ConcurrentLinkedQueue<V>();
 		localChunkStack = new ConcurrentHashMap<Integer, LinkedBlockingDeque<V>>();
 		
+		stolenNodeStack = new LinkedBlockingDeque<V>();
+		
 		// Initialise freeNodeStack with the nodes from the startNodeList
 		for(V n : startNodes){
 			freeNodeStack.add(n);
@@ -96,6 +99,7 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		
 		for (int i = 0; i < numOfThreads; i++) {
 			localChunkStack.put(i, new LinkedBlockingDeque<V>(chunkSize));
+			//stolenNodeStack.put(new LinkedBlockingDeque<V>());
 		}
 		
 		latch = new CountDownLatch(numOfThreads);
@@ -133,6 +137,34 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 							if(!processedNodes.contains(node)){
 								localChunkStack.get(id).push(node);
 							}
+						}else{ // Attempt to steal work.
+							stealingThreads.incrementAndGet();
+							if(stealingThreads.get() == numOfThreads){
+								stealingThreads.decrementAndGet();
+								continue;
+							}else{ // Steal work (nodes) .
+								V stolenNode = null;
+								for (int j = 0; j < numOfThreads; j++) {
+									if(localChunkStack.get(id).size() < chunkSize){
+										stolenNode = stealNode(j);
+										if (stolenNode != null){
+											System.out.println("Thread: "+id+" stole the node "+((INode)stolenNode).getName()+" from Thread "+j);
+											
+											if(!processedNodes.contains(stolenNode)){
+												stolenNodeStack.push(stolenNode);
+												localChunkStack.get(id).push(stolenNode);
+												
+												break;
+											}
+										}else{
+											continue;
+										}
+									}
+									
+								}
+								stealingThreads.decrementAndGet();
+
+							}
 						}
 					}
 				}
@@ -147,10 +179,56 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			}
 			
 			if(processedNodes.size() == numTreeNodes){
+				exit(latch);
 				return false;
 			}
+			
 		}
+		exit(latch);
 		return false;
+	}
+	
+	/**
+	 * Returns a stolen node from the stack of the target
+	 * @param target
+	 * @return
+	 */
+	protected V stealNode(int target) {
+		int id = threadID.get();	
+		
+		if(target != id){
+			//V currentStackNode =  localChunkStack.get(target).peek();
+			
+			Iterator it = localChunkStack.get(target).iterator();
+			
+			while(it.hasNext()){
+				V currentStackNode = (V) it.next();
+				// checks that all the children of the node are processed, if not
+				// add it to waiting list and call method again of the target
+				if(processedNodes.containsAll(graph.getChildrenList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
+					if(!stolenNodeStack.contains(currentStackNode)){
+						localChunkStack.get(target).remove(currentStackNode);
+						return currentStackNode;
+					}
+				}
+				waitingList.add(currentStackNode);
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Threads call this method to exit.
+	 * @param latch
+	 */
+	protected void exit(CountDownLatch latch) {
+		latch.countDown(); // Sign off thread.
+		try {
+			latch.await(); // Wait for other threads to sign off.
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted Exception");
+		}
 	}
 	
 	/**
@@ -163,10 +241,8 @@ public class BFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		
 		if(localNode != null){
 			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
-				
-				if(localChunkStack.get(id).size() < chunkSize){
-					permissionTable[0] = true;
-				}
+
+
 				
 				return localNode;
 			}else{

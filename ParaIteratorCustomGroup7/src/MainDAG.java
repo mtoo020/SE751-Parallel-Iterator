@@ -3,6 +3,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import pi.GraphAdapterInterface;
 import pi.INode;
 import pi.ParIterator;
+import pi.ParIterator.Schedule;
 import pi.ParIteratorFactory;
 
 public class MainDAG {
@@ -15,7 +16,8 @@ public class MainDAG {
 		long start = System.currentTimeMillis();
 		
 		@SuppressWarnings("unchecked")
-		ParIterator<INode> pi = ParIteratorFactory.getTreeIteratorBFSonDAGBottomTop(dag, dag.getStartNodes(), threadCount, chunkSize);
+		ParIterator<INode> pi = ParIteratorFactory
+			.getTreeParIteratorBFSonDAGBottomTop(dag, dag.getStartNodes(), threadCount, chunkSize, Schedule.DYNAMIC, false);
 		
 		AtomicInteger atomicInt = new AtomicInteger(1);
 		

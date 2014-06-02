@@ -14,12 +14,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import pi.util.ThreadID;
 
-public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
+public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBottomTopWorkStealing<V> {
 
 	private final int minChunkSize;
 	private static int currentChunkSize = 0;
 
-	public GuidedBFSonDAGBottomTop(GraphAdapterInterface graph,
+	public GuidedBFSonDAGBottomTopWorkStealing(GraphAdapterInterface graph,
 			Collection startNodes, int numOfThreads, int minChunkSize) {
 		super(graph, startNodes, numOfThreads, minChunkSize * 2);
 		if(currentChunkSize == 0){
@@ -51,6 +51,34 @@ public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 						if(node != null){
 							if(!processedNodes.contains(node)){
 								localChunkStack.get(id).push(node);
+							}
+						}else{ // Attempt to steal work.
+							stealingThreads.incrementAndGet();
+							if(stealingThreads.get() == numOfThreads){
+								stealingThreads.decrementAndGet();
+								continue;
+							}else{ // Steal work (nodes) .
+								V stolenNode = null;
+								for (int j = 0; j < numOfThreads; j++) {
+									if(localChunkStack.get(id).size() < chunkSize){
+										stolenNode = stealNode(j);
+										if (stolenNode != null){
+											System.out.println("Thread: "+id+" stole the node "+((INode)stolenNode).getName()+" from Thread "+j);
+											
+											if(!processedNodes.contains(stolenNode)){
+												stolenNodeStack.push(stolenNode);
+												localChunkStack.get(id).push(stolenNode);
+												
+												break;
+											}
+										}else{
+											continue;
+										}
+									}
+									
+								}
+								stealingThreads.decrementAndGet();
+
 							}
 						}
 					}
