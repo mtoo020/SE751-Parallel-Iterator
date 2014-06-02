@@ -9,7 +9,7 @@ import pi.ParIteratorFactory;
 public class MainDAG {
 	public static void main(String[] args) throws Exception {
 		int threadCount = 4;
-		int chunkSize = 32;
+		int chunkSize = 1;
 
 		GraphAdapterInterface<INode, String> dag = new XLSImageParser("test4.xls").parse();
 		
