@@ -45,7 +45,6 @@ public class XLSImageParser implements Parser {
 					formulaNodes.add(formulaNode);
 					}
 					else{
-						System.out.println("here");
 						INode leafNode = new Node(getName(cell), new ImageObject(cell.getContents()));
 						nodes.put(leafNode.getName(), leafNode);
 						leaves.add(leafNode);

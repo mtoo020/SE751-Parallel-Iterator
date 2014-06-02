@@ -5,7 +5,6 @@ public class ImageObject {
 	
 	public ImageObject(String formula){
 		String[] split = formula.split("/",2);
-		System.out.println(split[1]);
 		if(split.length == 2){
 			this.formula = split[0];
 			this.imageLink = split[1];
