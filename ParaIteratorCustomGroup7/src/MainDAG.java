@@ -56,7 +56,7 @@ public class MainDAG extends JFrame {
 		// Create and start a pool of worker threads
 		Thread[] threadPool = new WorkerThread[threadCount];
 		for (int i = 0; i < threadCount; i++) {
-			threadPool[i] = new WorkerThread(i, pi, atomicInt);
+			threadPool[i] = new WorkerThread(i, pi, atomicInt, d);
 			threadPool[i].start();
 		}
 

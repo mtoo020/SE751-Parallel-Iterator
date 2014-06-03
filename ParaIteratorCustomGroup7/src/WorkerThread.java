@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 
 import pi.INode;
 import pi.ParIterator;
@@ -14,11 +15,13 @@ public class WorkerThread extends Thread {
 	private ParIterator<INode> pi;
 	private int id = -1;
 	private AtomicInteger atomicInt;
-
-	public WorkerThread(int id, ParIterator<INode> pi, AtomicInteger atomicInt) {
+	private JLayeredPane layeredPane;
+	
+	public WorkerThread(int id, ParIterator<INode> pi, AtomicInteger atomicInt, JLayeredPane layeredPane) {
 		this.id = id;
 		this.pi = pi;
 		this.atomicInt = atomicInt;
+		this.layeredPane = layeredPane;
 	}
 
 	public void run() {
@@ -45,39 +48,44 @@ public class WorkerThread extends Thread {
 			ImageIcon rect = createImageIcon(imageLink + ".png");
 			JLabel label = new JLabel(rect);
 			label.setOpaque(true);
-			switch (imageLink.charAt(imageLink.length() - 1)) {
-			case '0':
-				label.setBounds(0, 0, rect.getIconWidth(), rect.getIconHeight());
-				MainDAG.d.add(label, 0, 0);
-				break;
-			case '1':
-				label.setBounds(15 + MainDAG.offset1 * MainDAG.rect1Count, 15,
-						rect.getIconWidth(), rect.getIconHeight());
-				MainDAG.rect1Count++;
-				MainDAG.d.add(label, 1, 0);
-				break;
-			case '2':
-				label.setBounds(30 + MainDAG.offset2 * MainDAG.rect2Count, 50,
-						rect.getIconWidth(), rect.getIconHeight());
-				MainDAG.rect2Count++;
-				MainDAG.d.add(label, 2, 0);
-				break;
-			case '3':
-				label.setBounds(60 + MainDAG.offset3 * MainDAG.rect3Count, 80,
-						rect.getIconWidth(), rect.getIconHeight());
-				MainDAG.rect3Count++;
-				MainDAG.d.add(label, 3, 0);
-				break;
-			case '4':
-				label.setBounds(230, 120, rect.getIconWidth(),
-						rect.getIconHeight());
-				MainDAG.d.add(label, 4, 0);
-				break;
-			default:
-				System.out.println("shouldn't be popping up");
-				break;
+			
+			synchronized(layeredPane){
+				switch (imageLink.charAt(imageLink.length() - 1)) {
+				case '0':
+					label.setBounds(0, 0, rect.getIconWidth(), rect.getIconHeight());
+					layeredPane.add(label, 0, 0);
+					break;
+				case '1':
+					label.setBounds(15 + MainDAG.offset1 * MainDAG.rect1Count, 15,
+							rect.getIconWidth(), rect.getIconHeight());
+					MainDAG.rect1Count++;
+					layeredPane.add(label, 1, 0);
+					break;
+				case '2':
+					label.setBounds(30 + MainDAG.offset2 * MainDAG.rect2Count, 50,
+							rect.getIconWidth(), rect.getIconHeight());
+					MainDAG.rect2Count++;
+					layeredPane.add(label, 2, 0);
+					break;
+				case '3':
+					label.setBounds(60 + MainDAG.offset3 * MainDAG.rect3Count, 80,
+							rect.getIconWidth(), rect.getIconHeight());
+					MainDAG.rect3Count++;
+					layeredPane.add(label, 3, 0);
+					break;
+				case '4':
+					label.setBounds(230, 120, rect.getIconWidth(),
+							rect.getIconHeight());
+					layeredPane.add(label, 4, 0);
+					break;
+				default:
+					System.out.println("shouldn't be popping up");
+					break;
 
+				}
 			}
+			
+
 
 		}
 		System.out.println("    Thread " + id + " has finished.");
