@@ -24,11 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.*;
 
-
-
 /**
- * Date created: 9 September 2009 
- * Last modified: 22 September 2009
+ * Date created: 9 September 2009 Last modified: 22 September 2009
  * 
  * This class represents a Parallel DFS Iterator which works on Directed Acyclic
  * Graphs (DAGs). It returns nodes in DFS order from top to buttom (i.e. in case
@@ -58,20 +55,20 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 	private AtomicBoolean breakAll = new AtomicBoolean(false);
 
 	private GraphAdapterInterface graph;
-	
+
 	private V root;
 
 	private LinkedBlockingDeque<V> stack;
-	
+
 	private ConcurrentLinkedQueue<Integer> targets;
-	
-	private ConcurrentLinkedQueue<V> processedNodes ;
-	
-	private ConcurrentLinkedQueue<V> waitingList ;
-	
+
+	private ConcurrentLinkedQueue<V> processedNodes;
+
+	private ConcurrentLinkedQueue<V> waitingList;
+
 	private AtomicInteger stealingThreads = new AtomicInteger(0);
-	
-	public DFSonDAGs(GraphAdapterInterface graph,V root, int numOfThreads) {
+
+	public DFSonDAGs(GraphAdapterInterface graph, V root, int numOfThreads) {
 
 		super(numOfThreads, false);
 		this.graph = graph;
@@ -108,32 +105,32 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 		return permissionTable;
 	}
 
-	
 	// This method returns TRUE if there is still available vertex in the
-    // iterator (i.e. unvisited vertex), else returns FALSE
+	// iterator (i.e. unvisited vertex), else returns FALSE
 	public boolean hasNext() {
 		int id = threadID.get();
 
-//		ArrayList<GraphAdapterInterface> successors;
+		// ArrayList<GraphAdapterInterface> successors;
 		if (breakAll.get() == false) {
-			
+
 			// Retrieve node from local stack and store it in buffer
 			V node = getLocalNode();
 			if (node != null) {
-				
+
 				buffer[id][0] = node;
 				processedNodes.add(node);
-				
+
 				@SuppressWarnings("unchecked")
 				Iterator<V> it = graph.getChildrenList(node).iterator();
 				// push the successors (children) into the local stack
 				while (it.hasNext()) {
-					V nextNode =  it.next();
+					V nextNode = it.next();
 					localStack.get(id).addLast(nextNode);
 				}
 				return true;
 			} else {
-				// when local stack is empty, start from a new place (Steal Work)..
+				// when local stack is empty, start from a new place (Steal
+				// Work)..
 				stealingThreads.incrementAndGet();
 				while (true) {
 					if (stealingThreads.get() == numOfThreads) {
@@ -145,16 +142,17 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 						V stolenNode = null;
 						for (int i = 0; i < numOfThreads; i++) {
 							stolenNode = stealNode(i);
-							if (stolenNode != null){
+							if (stolenNode != null) {
 								stealingThreads.decrementAndGet();
 								break;
 							}
 						}
-						
+
 						if (stolenNode != null) {
 							buffer[id][0] = stolenNode;
 							processedNodes.add(stolenNode);
-							Iterator<V> successorsIt = graph.getChildrenList(stolenNode).iterator();
+							Iterator<V> successorsIt = graph.getChildrenList(
+									stolenNode).iterator();
 							// push the successors into the local stack
 							while (successorsIt.hasNext()) {
 								V nextNode = successorsIt.next();
@@ -170,58 +168,64 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 		exit(latch);
 		return false;
 	}
-	
+
 	// Returns a node from the stack of the target
 	private V stealNode(int target) {
-		//int id = threadID.get();
-		V currentStackNode =  localStack.get(target).pollLast();
-		if(currentStackNode != null){
+		// int id = threadID.get();
+		V currentStackNode = localStack.get(target).pollLast();
+		if (currentStackNode != null) {
 			// checks that all the parents of the node are processed, if not
 			// add it to waiting list and call method again of the target
-			if(processedNodes.containsAll(graph.getParentsList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
+			if (processedNodes.containsAll(graph
+					.getParentsList(currentStackNode))
+					&& !processedNodes.contains(currentStackNode)) {
 				return currentStackNode;
-			}else if(!processedNodes.containsAll(graph.getParentsList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
+			} else if (!processedNodes.containsAll(graph
+					.getParentsList(currentStackNode))
+					&& !processedNodes.contains(currentStackNode)) {
 				waitingList.add(currentStackNode);
 				return stealNode(target);
-			}else{
+			} else {
 				return stealNode(target);
 			}
-		} else{
+		} else {
 			// returns null when no nodes are available in the target's stack
 			return currentStackNode;
 		}
-	
+
 	}
-	
+
 	// Returns a node from the local stack of the thread
-	private V getLocalNode() { //next node for this thread to process?
+	private V getLocalNode() { // next node for this thread to process?
 		int id = threadID.get();
-		V currentStackNode =  localStack.get(id).pollLast();
+		V currentStackNode = localStack.get(id).pollLast();
 		// checks that all the parents of the node are processed and
 		// that we haven't processed the current node, otherwise
 		// add it to waiting list and call method again of the target
-		if(currentStackNode != null){
-			
-			//print(graph.getParentsList(currentStackNode));
-			
-			if(processedNodes.containsAll(graph.getParentsList(currentStackNode)) && !processedNodes.contains(currentStackNode)){
+		if (currentStackNode != null) {
+
+			// print(graph.getParentsList(currentStackNode));
+
+			if (processedNodes.containsAll(graph
+					.getParentsList(currentStackNode))
+					&& !processedNodes.contains(currentStackNode)) {
 				return currentStackNode;
-			}else{
-				waitingList.add(currentStackNode); //back to the waiting list
+			} else {
+				waitingList.add(currentStackNode); // back to the waiting list
 				return getLocalNode();
 			}
-		}else{
+		} else {
 			return currentStackNode;
 		}
-	
+
 	}
 
 	// Threads call this method to exit
 	private void exit(CountDownLatch latch) {
-		//int id = threadID.get();
-	    if (processedNodesNum >= numTreeNodes) {
+		// int id = threadID.get();
+		if (processedNodesNum >= numTreeNodes) {
 			// All Nodes have been traversed
-		    permissionTable = giveAllPermission(permissionTable);
+			permissionTable = giveAllPermission(permissionTable);
 		}
 		latch.countDown();
 		try {
@@ -239,8 +243,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 		return permissionTable;
 	}
 
-	
-	// This method returns the node assigned to a specific thread 
+	// This method returns the node assigned to a specific thread
 	@SuppressWarnings("unchecked")
 	public V next() {
 		int id = threadID.get();
@@ -258,7 +261,7 @@ public class DFSonDAGs<V> extends ParIteratorAbstract<V> {
 		throw new UnsupportedOperationException(
 				"Local break not supported yet for Graphs");
 	}
-	
+
 	private void print(Object... objs) {
 		for (Object o : objs) {
 			System.out.println(o);

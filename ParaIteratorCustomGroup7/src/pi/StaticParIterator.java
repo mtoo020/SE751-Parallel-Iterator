@@ -7,8 +7,7 @@ import pi.util.TLocal;
 import java.util.*;
 
 /**
- * Author: xiaoxing
- * Date: 31/05/13
+ * Author: xiaoxing Date: 31/05/13
  */
 public class StaticParIterator<E> extends ParIteratorAbstract<E> {
 
@@ -19,10 +18,12 @@ public class StaticParIterator<E> extends ParIteratorAbstract<E> {
 	final protected TLocal<Iterator<List<E>>> localChunkIterator;
 	final protected TLocal<Iterator<E>> localIterator;
 
-	public StaticParIterator(Collection<E> collection, int chunkSize, int numOfThreads, boolean ignoreBarrier) {
+	public StaticParIterator(Collection<E> collection, int chunkSize,
+			int numOfThreads, boolean ignoreBarrier) {
 		super(collection, chunkSize, numOfThreads, ignoreBarrier);
 		if (this.chunkSize <= 0) {
-			this.chunkSize = (int) Math.ceil((double) collection.size() / numOfThreads);
+			this.chunkSize = (int) Math.ceil((double) collection.size()
+					/ numOfThreads);
 		}
 		data = formatData(collection);
 		chunks = Lists.partition(data, this.chunkSize);

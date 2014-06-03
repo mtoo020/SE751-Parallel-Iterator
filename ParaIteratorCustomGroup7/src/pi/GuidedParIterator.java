@@ -3,18 +3,19 @@ package pi;
 import java.util.*;
 
 /**
- * Author: xiaoxing
- * Date: 1/06/13
+ * Author: xiaoxing Date: 1/06/13
  */
 public class GuidedParIterator<E> extends DynamicParIterator<E> {
 
-	public GuidedParIterator(final Collection<E> collection, final int chunkSize, final int numOfThreads, final boolean ignoreBarrier) {
+	public GuidedParIterator(final Collection<E> collection,
+			final int chunkSize, final int numOfThreads,
+			final boolean ignoreBarrier) {
 		super(collection, chunkSize, numOfThreads, ignoreBarrier);
 	}
 
 	@Override
-	protected Iterator<List<E>> partition(
-			final Collection<E> collection, final int minChunkSize, final int numOfThreads) {
+	protected Iterator<List<E>> partition(final Collection<E> collection,
+			final int minChunkSize, final int numOfThreads) {
 		if (collection instanceof RandomAccess) {
 			return new Iterator<List<E>>() {
 				@Override
@@ -22,7 +23,7 @@ public class GuidedParIterator<E> extends DynamicParIterator<E> {
 					return (cursor < data.size());
 				}
 
-				List<E> data = (List<E>)collection;
+				List<E> data = (List<E>) collection;
 				int cursor = 0;
 
 				@Override
@@ -58,6 +59,7 @@ public class GuidedParIterator<E> extends DynamicParIterator<E> {
 				}
 
 				int remaining = collection.size();
+
 				@Override
 				public synchronized List<E> next() {
 					if (!hasNext()) {
@@ -78,8 +80,8 @@ public class GuidedParIterator<E> extends DynamicParIterator<E> {
 					remaining -= len;
 
 					@SuppressWarnings("unchecked")
-					List<E> list = Collections.unmodifiableList(
-							(List<E>) Arrays.asList(array));
+					List<E> list = Collections
+							.unmodifiableList((List<E>) Arrays.asList(array));
 					return list;
 				}
 

@@ -8,26 +8,29 @@ import pi.util.TLocal;
 import java.util.*;
 
 /**
- * Author: xiaoxing
- * Date: 1/06/13
+ * Author: xiaoxing Date: 1/06/13
  */
 public class DynamicParIterator<E> extends ParIteratorAbstract<E> {
 
 	private Iterator<List<E>> chunkIterator = null;
 
-	final protected TLocal<Iterator<E>> localIterator = new TLocal<Iterator<E>>(threadID);
+	final protected TLocal<Iterator<E>> localIterator = new TLocal<Iterator<E>>(
+			threadID);
 
-	public DynamicParIterator(final Collection<E> collection, final int chunkSize, final int numOfThreads, final boolean ignoreBarrier) {
+	public DynamicParIterator(final Collection<E> collection,
+			final int chunkSize, final int numOfThreads,
+			final boolean ignoreBarrier) {
 		super(collection, chunkSize, numOfThreads, ignoreBarrier);
 		if (this.chunkSize <= 0) {
-			// the default chunkSize for Dynamic should be 1, which is consistent with the OpenMP specification.
+			// the default chunkSize for Dynamic should be 1, which is
+			// consistent with the OpenMP specification.
 			this.chunkSize = 1;
 		}
 		chunkIterator = partition(collection, this.chunkSize, numOfThreads);
 	}
 
-	protected Iterator<List<E>> partition(
-			final Collection<E> collection, final int chunkSize, final int numOfThreads) {
+	protected Iterator<List<E>> partition(final Collection<E> collection,
+			final int chunkSize, final int numOfThreads) {
 		if (collection instanceof RandomAccess) {
 			return new Iterator<List<E>>() {
 				@Override
@@ -35,7 +38,7 @@ public class DynamicParIterator<E> extends ParIteratorAbstract<E> {
 					return (cursor < data.size());
 				}
 
-				List<E> data = (List<E>)collection;
+				List<E> data = (List<E>) collection;
 				int cursor = 0;
 
 				@Override
@@ -65,6 +68,7 @@ public class DynamicParIterator<E> extends ParIteratorAbstract<E> {
 				}
 
 				int remaining = collection.size();
+
 				@Override
 				public synchronized List<E> next() {
 					if (!hasNext()) {
@@ -80,8 +84,8 @@ public class DynamicParIterator<E> extends ParIteratorAbstract<E> {
 					remaining -= len;
 
 					@SuppressWarnings("unchecked")
-					List<E> list = Collections.unmodifiableList(
-							(List<E>) Arrays.asList(array));
+					List<E> list = Collections
+							.unmodifiableList((List<E>) Arrays.asList(array));
 					return list;
 				}
 

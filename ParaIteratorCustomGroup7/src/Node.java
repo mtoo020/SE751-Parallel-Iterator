@@ -8,7 +8,7 @@ public class Node implements INode {
 
 	private ArrayList<INode> children;
 	private ArrayList<INode> parents;
-	private String name; 
+	private String name;
 	private Object data;
 
 	public Node(String name, Object data) {

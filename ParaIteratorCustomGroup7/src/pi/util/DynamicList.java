@@ -8,39 +8,47 @@ import java.util.RandomAccess;
 
 /**
  * 
- * A List that "dynamically" creates its elements. It does not contain a buffer of elements, instead
- * the values of the "contained" elements are calculated on the spot when {@link #get(int)} is used.
- * <br><br>
- * Since the elements are calculated on the spot, this collection only contains elements with a
- * uniform integer range. Must therefore use the constructor to specify those parameters, and no 
- * other operations are supported (for example, cannot add, or remove elements, not even an iterator).
- * <br><br>
- * The purpose of this collection is to allow an arbitrarily large collection, without using a ridiculous
- * amount of memory. 
- * <br><br>
- * Almost all the standard List methods throw an <code>UnsupportedOperationException</code>. The only methods supported by this class include:
+ * A List that "dynamically" creates its elements. It does not contain a buffer
+ * of elements, instead the values of the "contained" elements are calculated on
+ * the spot when {@link #get(int)} is used. <br>
+ * <br>
+ * Since the elements are calculated on the spot, this collection only contains
+ * elements with a uniform integer range. Must therefore use the constructor to
+ * specify those parameters, and no other operations are supported (for example,
+ * cannot add, or remove elements, not even an iterator). <br>
+ * <br>
+ * The purpose of this collection is to allow an arbitrarily large collection,
+ * without using a ridiculous amount of memory. <br>
+ * <br>
+ * Almost all the standard List methods throw an
+ * <code>UnsupportedOperationException</code>. The only methods supported by
+ * this class include:
  * <ul>
- *   <li> {@link #get(int)}
- *   <li> {@link #size()}
- *   <li> {@link #isEmpty()}
+ * <li> {@link #get(int)}
+ * <li> {@link #size()}
+ * <li> {@link #isEmpty()}
  * </ul>
  * 
  * @author Nasser Giacaman
  * @author Oliver Sinnen
  */
 public class DynamicList implements List<Integer>, RandomAccess {
-	
+
 	private int start;
 	private int size;
 	private int increment;
 	private DynamicListIterator iter;
-	
+
 	/**
-	 * Create a new DynamicList. Must specify the integer range of the "contained" elements.
+	 * Create a new DynamicList. Must specify the integer range of the
+	 * "contained" elements.
 	 * 
-	 * @param start			The first element value.
-	 * @param size			The number of the elements to create. 
-	 * @param increment		The increment amount between neighbouring elements.
+	 * @param start
+	 *            The first element value.
+	 * @param size
+	 *            The number of the elements to create.
+	 * @param increment
+	 *            The increment amount between neighbouring elements.
 	 */
 	public DynamicList(int start, int size, int increment) {
 		this.start = start;
@@ -48,7 +56,7 @@ public class DynamicList implements List<Integer>, RandomAccess {
 		this.increment = increment;
 
 	}
-	
+
 	@Override
 	public boolean add(Integer e) {
 		throw new UnsupportedOperationException();
@@ -86,7 +94,7 @@ public class DynamicList implements List<Integer>, RandomAccess {
 
 	@Override
 	public Integer get(int index) {
-		return start + index * increment; 
+		return start + index * increment;
 	}
 
 	@Override
@@ -101,31 +109,33 @@ public class DynamicList implements List<Integer>, RandomAccess {
 
 	@Override
 	public Iterator<Integer> iterator() {
-//		throw new UnsupportedOperationException();
+		// throw new UnsupportedOperationException();
 		return new DynamicListIterator();
 	}
-	
-	class DynamicListIterator implements Iterator{
+
+	class DynamicListIterator implements Iterator {
 		private int current = -1;
+
 		@Override
 		public boolean hasNext() {
-			return current+1 < size;
-			
+			return current + 1 < size;
+
 		}
-	
+
 		@Override
 		public Object next() {
 			current++;
 			return DynamicList.this.get(current);
 		}
-	
+
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
-			
+
 		}
-		
+
 	}
+
 	@Override
 	public int lastIndexOf(Object o) {
 		throw new UnsupportedOperationException();
@@ -174,7 +184,7 @@ public class DynamicList implements List<Integer>, RandomAccess {
 	@Override
 	public List<Integer> subList(int fromIndex, int toIndex) {
 		int init = this.get(fromIndex);
-		return new DynamicList(init, toIndex-fromIndex, this.increment);
+		return new DynamicList(init, toIndex - fromIndex, this.increment);
 	}
 
 	@Override
@@ -186,6 +196,5 @@ public class DynamicList implements List<Integer>, RandomAccess {
 	public <T> T[] toArray(T[] a) {
 		throw new UnsupportedOperationException();
 	}
-
 
 }

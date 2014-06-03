@@ -3,16 +3,14 @@ package pi.util;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
- * This class works similar to the standard ThreadLocal but with
- * global control. All variables owned by individual threads can
- * be accessed globally.
+ * This class works similar to the standard ThreadLocal but with global control.
+ * All variables owned by individual threads can be accessed globally.
  *
- * Author: xiaoxing
- * Date: 4/06/13
+ * Author: xiaoxing Date: 4/06/13
  */
 public class TLocal<E> {
 	private AtomicReferenceArray<E> values;
-//	private Object[] values;
+	// private Object[] values;
 	private ThreadID threadID;
 
 	public TLocal(ThreadID threadID) {

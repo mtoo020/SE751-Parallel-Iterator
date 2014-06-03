@@ -5,12 +5,12 @@ import pi.collect.Lists;
 import java.util.*;
 
 /**
- * Author: xiaoxing
- * Date: 29/06/13
+ * Author: xiaoxing Date: 29/06/13
  */
 public class MemoryAwareParIterator<E> extends StaticParIterator<E> {
 
-	public MemoryAwareParIterator(Collection<E> collection, int chunkSize, int numOfThreads, boolean ignoreBarrier) {
+	public MemoryAwareParIterator(Collection<E> collection, int chunkSize,
+			int numOfThreads, boolean ignoreBarrier) {
 		super(collection, chunkSize, numOfThreads, ignoreBarrier);
 	}
 

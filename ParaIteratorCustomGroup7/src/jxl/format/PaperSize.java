@@ -23,8 +23,7 @@ package jxl.format;
  * Enumeration type which contains the available excel paper sizes and their
  * codes
  */
-public final class PaperSize
-{
+public final class PaperSize {
 	private static final int LAST_PAPER_SIZE = 89;
 	/**
 	 * The excel encoding
@@ -39,19 +38,16 @@ public final class PaperSize
 	/**
 	 * Constructor
 	 */
-	private PaperSize(int v, boolean growArray)
-	{
+	private PaperSize(int v, boolean growArray) {
 		val = v;
 
-		if (v >= paperSizes.length && growArray)
-		{
+		if (v >= paperSizes.length && growArray) {
 			// Grow the array and add this to it
 			PaperSize[] newarray = new PaperSize[v + 1];
 			System.arraycopy(paperSizes, 0, newarray, 0, paperSizes.length);
 			paperSizes = newarray;
 		}
-		if (v < paperSizes.length)
-		{
+		if (v < paperSizes.length) {
 			paperSizes[v] = this;
 		}
 	}
@@ -59,8 +55,7 @@ public final class PaperSize
 	/**
 	 * Constructor
 	 */
-	private PaperSize(int v)
-	{
+	private PaperSize(int v) {
 		this(v, true);
 	}
 
@@ -69,19 +64,18 @@ public final class PaperSize
 	 *
 	 * @return the internal value
 	 */
-	public int getValue()
-	{
+	public int getValue() {
 		return val;
 	}
 
 	/**
 	 * Gets the paper size for a specific value
 	 *
-	 * @param val the value
+	 * @param val
+	 *            the value
 	 * @return the paper size
 	 */
-	public static PaperSize getPaperSize(int val)
-	{
+	public static PaperSize getPaperSize(int val) {
 		PaperSize p = val > paperSizes.length - 1 ? null : paperSizes[val];
 		return p == null ? new PaperSize(val, false) : p;
 	}
@@ -319,7 +313,8 @@ public final class PaperSize
 	public static final PaperSize JAPANESE_POSTCARD_ROTATED = new PaperSize(81);
 
 	/** Dbl. Jap. Postcard Rot. 148mm × 200mm */
-	public static final PaperSize DOUBLE_JAPANESE_POSTCARD_ROTATED = new PaperSize(82);
+	public static final PaperSize DOUBLE_JAPANESE_POSTCARD_ROTATED = new PaperSize(
+			82);
 
 	/** A6 Rotated 148mm × 105mm */
 	public static final PaperSize A6_ROTATED = new PaperSize(83);

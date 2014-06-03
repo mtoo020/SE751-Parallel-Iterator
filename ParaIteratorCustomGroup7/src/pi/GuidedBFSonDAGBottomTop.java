@@ -22,56 +22,57 @@ public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 	public GuidedBFSonDAGBottomTop(GraphAdapterInterface graph,
 			Collection startNodes, int numOfThreads, int minChunkSize) {
 		super(graph, startNodes, numOfThreads, minChunkSize * 2);
-		if(currentChunkSize == 0){
-		currentChunkSize = minChunkSize * 2;
+		if (currentChunkSize == 0) {
+			currentChunkSize = minChunkSize * 2;
 		}
 		this.minChunkSize = minChunkSize;
 	}
 
-	public boolean hasNext(){
-		if(breakAll.get() == false){
+	public boolean hasNext() {
+		if (breakAll.get() == false) {
 			int id = threadID.get();
 
-
-			if(localChunkStack.get(id).size() == 0){
+			if (localChunkStack.get(id).size() == 0) {
 				permissionTable[id] = true;
-			}else{
+			} else {
 				permissionTable[id] = false;
 			}
 
-			if(permissionTable[id]){ // Get free nodes.
+			if (permissionTable[id]) { // Get free nodes.
 				System.out.println("setting the localchunkstack....");
-				for(int i = 0; i < currentChunkSize; i++){
-					// Prevent retrieval of free nodes if chunk size quota has been filled.
-					if(localChunkStack.get(id).size() < currentChunkSize){ 
+				for (int i = 0; i < currentChunkSize; i++) {
+					// Prevent retrieval of free nodes if chunk size quota has
+					// been filled.
+					if (localChunkStack.get(id).size() < currentChunkSize) {
 						lock.lock();
 						V node = freeNodeStack.poll();
 						lock.unlock();
 
-						if(node != null){
-							if(!processedNodes.contains(node)){
+						if (node != null) {
+							if (!processedNodes.contains(node)) {
 								localChunkStack.get(id).push(node);
 							}
 						}
 					}
 				}
 				lock.lock();
-				if(currentChunkSize > minChunkSize){
+				if (currentChunkSize > minChunkSize) {
 					currentChunkSize--;
 				}
 				lock.unlock();
-				System.out.println("Thread"+ id + "localchunkstack size: " + localChunkStack.get(id).size());
+				System.out.println("Thread" + id + "localchunkstack size: "
+						+ localChunkStack.get(id).size());
 			}
 			V nextNode = getLocalNode();
-			if(nextNode != null){
+			if (nextNode != null) {
 				buffer[id][0] = nextNode;
 				processedNodes.add(nextNode);
 				checkFreeNodes(nextNode);
-				
+
 				return true;
 			}
-			
-			if(processedNodes.size() == numTreeNodes){
+
+			if (processedNodes.size() == numTreeNodes) {
 				exit(latch);
 				return false;
 			}
@@ -79,25 +80,23 @@ public class GuidedBFSonDAGBottomTop<V> extends DynamicBFSonDAGBottomTop<V> {
 		exit(latch);
 		return false;
 	}
-	
+
 	private synchronized V getLocalNode() {
-		int id = threadID.get();	
+		int id = threadID.get();
 
 		V localNode = localChunkStack.get(id).poll();
-		
-		if(localNode != null){
-			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
+
+		if (localNode != null) {
+			if (processedNodes.containsAll(graph.getChildrenList(localNode))
+					&& !processedNodes.contains(localNode)) {
 				return localNode;
-			}else{
+			} else {
 				waitingList.add(localNode);
 				return getLocalNode();
 			}
-		}else{
+		} else {
 			return null;
 		}
 	}
-			
 
 }
-
-

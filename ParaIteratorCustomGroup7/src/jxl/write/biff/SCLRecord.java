@@ -26,39 +26,38 @@ import jxl.biff.WritableRecordData;
 /**
  * Record which specifies a margin value
  */
-class SCLRecord extends WritableRecordData
-{
-  /** 
-   * The zoom factor
-   */
-  private int zoomFactor;
-  
-  /**
-   * Constructor
-   *
-   * @param zf the zoom factor as a percentage
-   */
-  public SCLRecord(int zf)
-  {
-    super(Type.SCL);
+class SCLRecord extends WritableRecordData {
+	/**
+	 * The zoom factor
+	 */
+	private int zoomFactor;
 
-    zoomFactor = zf;
-  }
-  /**
-   * Gets the binary data for output to file
-   * 
-   * @return the binary data
-   */
-  public byte[] getData()
-  {
-    byte[] data = new byte[4];
+	/**
+	 * Constructor
+	 *
+	 * @param zf
+	 *            the zoom factor as a percentage
+	 */
+	public SCLRecord(int zf) {
+		super(Type.SCL);
 
-    int numerator = zoomFactor;
-    int denominator = 100;
+		zoomFactor = zf;
+	}
 
-    IntegerHelper.getTwoBytes(numerator,data,0);
-    IntegerHelper.getTwoBytes(denominator,data,2);
+	/**
+	 * Gets the binary data for output to file
+	 * 
+	 * @return the binary data
+	 */
+	public byte[] getData() {
+		byte[] data = new byte[4];
 
-    return data;
-  }
+		int numerator = zoomFactor;
+		int denominator = 100;
+
+		IntegerHelper.getTwoBytes(numerator, data, 0);
+		IntegerHelper.getTwoBytes(denominator, data, 2);
+
+		return data;
+	}
 }

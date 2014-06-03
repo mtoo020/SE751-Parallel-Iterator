@@ -20,8 +20,9 @@
 package pi.exceptions;
 
 /**
- *	Represents a run-time exception due to incorrect usage of the Parallel Iterator. 
- *	
+ * Represents a run-time exception due to incorrect usage of the Parallel
+ * Iterator.
+ *
  * @author Nasser Giacaman
  * @author Oliver Sinnen
  */

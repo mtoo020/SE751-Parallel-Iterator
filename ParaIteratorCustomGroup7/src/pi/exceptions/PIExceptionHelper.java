@@ -26,12 +26,14 @@ package pi.exceptions;
  *
  */
 public class PIExceptionHelper {
-	
+
 	/*
-	 * The purpose of this helper is to keep the constructor of the ParIteratorException hidden from the 
-	 * user API (but still be accessible to the "pi" package).
+	 * The purpose of this helper is to keep the constructor of the
+	 * ParIteratorException hidden from the user API (but still be accessible to
+	 * the "pi" package).
 	 */
-	public static ParIteratorException createException(Exception exception, Object iteration, Thread registeringThread) {
+	public static ParIteratorException createException(Exception exception,
+			Object iteration, Thread registeringThread) {
 		return new ParIteratorException(exception, iteration, registeringThread);
 	}
 }

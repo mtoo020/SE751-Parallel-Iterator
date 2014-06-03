@@ -26,29 +26,20 @@ import jxl.biff.IntegerHelper;
 /**
  * Indicates that the function doesn't evaluate to a constant reference
  */
-class MemFunc extends SubExpression
-{
-  /**
-   * Constructor
-   */
-  public MemFunc()
-  {
-  }
+class MemFunc extends SubExpression {
+	/**
+	 * Constructor
+	 */
+	public MemFunc() {
+	}
 
-  public void getString(StringBuffer sb)
-  {
-  }
+	public void getString(StringBuffer sb) {
+	}
 
- /**
-   * If this formula was on an imported sheet, check that
-   * cell references to another sheet are warned appropriately
-   * Does nothing
-   */
-  void handleImportedCellReferences()
-  {
-  }
+	/**
+	 * If this formula was on an imported sheet, check that cell references to
+	 * another sheet are warned appropriately Does nothing
+	 */
+	void handleImportedCellReferences() {
+	}
 }
-
-
-
-

@@ -3,12 +3,11 @@ package pi.util;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This thread ID scheme works well with fixed thread number
- * and reusable ParIterator. If the thread number becomes
- * dynamic, a new thread ID scheme should be applied.
+ * This thread ID scheme works well with fixed thread number and reusable
+ * ParIterator. If the thread number becomes dynamic, a new thread ID scheme
+ * should be applied.
  *
- * Author: xiaoxing
- * Date: 4/06/13
+ * Author: xiaoxing Date: 4/06/13
  */
 public class ThreadID {
 

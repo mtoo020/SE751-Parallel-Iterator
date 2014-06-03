@@ -26,11 +26,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.*;
 
 /**
- * Date created: 29 April 2009 
- * Last modified: 30 April 2009
+ * Date created: 29 April 2009 Last modified: 30 April 2009
  * 
- * This class represents a Parallel DFS Iterator which is implemented with 
- * a local stack for each thread. It supports work-stealing when threads get idle.
+ * This class represents a Parallel DFS Iterator which is implemented with a
+ * local stack for each thread. It supports work-stealing when threads get idle.
  * 
  * @author Lama Akeila
  */
@@ -41,8 +40,6 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 
 	// Maps each thread id to its local stack
 	private ConcurrentHashMap<Integer, LinkedBlockingDeque<V>> localStack;
-
-	
 
 	private final ReentrantLock lock = new ReentrantLock();
 
@@ -58,7 +55,6 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 
 	private AtomicInteger stealingThreads = new AtomicInteger(0);
 
-	
 	public DFSWorkStealing(GraphAdapterInterface tree, V root, int numOfThreads) {
 
 		super(numOfThreads, false);
@@ -93,9 +89,9 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 					V nextNode = (V) it.next();
 					localStack.get(id).addLast(nextNode);
 				}
-		
+
 				return true;
-				
+
 			} else {
 
 				stealingThreads.incrementAndGet();
@@ -142,8 +138,7 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 		}
 	}
 
-
-	// This method returns a vertex assigned to a specific thread 
+	// This method returns a vertex assigned to a specific thread
 	public V next() {
 		int id = threadID.get();
 		return (V) buffer[id][0];
@@ -162,4 +157,3 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 	}
 
 }
-

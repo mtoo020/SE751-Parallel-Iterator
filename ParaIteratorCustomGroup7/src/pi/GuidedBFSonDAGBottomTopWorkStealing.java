@@ -14,7 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import pi.util.ThreadID;
 
-public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBottomTopWorkStealing<V> {
+public class GuidedBFSonDAGBottomTopWorkStealing<V> extends
+		DynamicBFSonDAGBottomTopWorkStealing<V> {
 
 	private final int minChunkSize;
 	private static int currentChunkSize = 0;
@@ -22,60 +23,68 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBotto
 	public GuidedBFSonDAGBottomTopWorkStealing(GraphAdapterInterface graph,
 			Collection startNodes, int numOfThreads, int minChunkSize) {
 		super(graph, startNodes, numOfThreads, minChunkSize * 2);
-		if(currentChunkSize == 0){
-		currentChunkSize = minChunkSize * 2;
+		if (currentChunkSize == 0) {
+			currentChunkSize = minChunkSize * 2;
 		}
 		this.minChunkSize = minChunkSize;
 	}
 
-	public boolean hasNext(){
-		if(breakAll.get() == false){
+	public boolean hasNext() {
+		if (breakAll.get() == false) {
 			int id = threadID.get();
 
-
-			if(localChunkStack.get(id).size() == 0){
+			if (localChunkStack.get(id).size() == 0) {
 				permissionTable[id] = true;
-			}else{
+			} else {
 				permissionTable[id] = false;
 			}
 
-			if(permissionTable[id]){ // Get free nodes.
+			if (permissionTable[id]) { // Get free nodes.
 				System.out.println("setting the localchunkstack....");
-				for(int i = 0; i < currentChunkSize; i++){
-					// Prevent retrieval of free nodes if chunk size quota has been filled.
-					if(localChunkStack.get(id).size() < currentChunkSize){ 
+				for (int i = 0; i < currentChunkSize; i++) {
+					// Prevent retrieval of free nodes if chunk size quota has
+					// been filled.
+					if (localChunkStack.get(id).size() < currentChunkSize) {
 						lock.lock();
 						V node = freeNodeStack.poll();
 						lock.unlock();
 
-						if(node != null){
-							if(!processedNodes.contains(node)){
+						if (node != null) {
+							if (!processedNodes.contains(node)) {
 								localChunkStack.get(id).push(node);
 							}
-						}else{ // Attempt to steal work.
+						} else { // Attempt to steal work.
 							stealingThreads.incrementAndGet();
-							if(stealingThreads.get() == numOfThreads){
+							if (stealingThreads.get() == numOfThreads) {
 								stealingThreads.decrementAndGet();
 								continue;
-							}else{ // Steal work (nodes) .
+							} else { // Steal work (nodes) .
 								V stolenNode = null;
 								for (int j = 0; j < numOfThreads; j++) {
-									if(localChunkStack.get(id).size() < chunkSize){
+									if (localChunkStack.get(id).size() < chunkSize) {
 										stolenNode = stealNode(j);
-										if (stolenNode != null){
-											System.out.println("Thread: "+id+" stole the node "+((INode)stolenNode).getName()+" from Thread "+j);
-											
-											if(!processedNodes.contains(stolenNode)){
-												stolenNodeStack.push(stolenNode);
-												localChunkStack.get(id).push(stolenNode);
-												
+										if (stolenNode != null) {
+											System.out.println("Thread: "
+													+ id
+													+ " stole the node "
+													+ ((INode) stolenNode)
+															.getName()
+													+ " from Thread " + j);
+
+											if (!processedNodes
+													.contains(stolenNode)) {
+												stolenNodeStack
+														.push(stolenNode);
+												localChunkStack.get(id).push(
+														stolenNode);
+
 												break;
 											}
-										}else{
+										} else {
 											continue;
 										}
 									}
-									
+
 								}
 								stealingThreads.decrementAndGet();
 
@@ -84,22 +93,23 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBotto
 					}
 				}
 				lock.lock();
-				if(currentChunkSize > minChunkSize){
+				if (currentChunkSize > minChunkSize) {
 					currentChunkSize--;
 				}
 				lock.unlock();
-				System.out.println("Thread"+ id + "localchunkstack size: " + localChunkStack.get(id).size());
+				System.out.println("Thread" + id + "localchunkstack size: "
+						+ localChunkStack.get(id).size());
 			}
 			V nextNode = getLocalNode();
-			if(nextNode != null){
+			if (nextNode != null) {
 				buffer[id][0] = nextNode;
 				processedNodes.add(nextNode);
 				checkFreeNodes(nextNode);
-				
+
 				return true;
 			}
-			
-			if(processedNodes.size() == numTreeNodes){
+
+			if (processedNodes.size() == numTreeNodes) {
 				exit(latch);
 				return false;
 			}
@@ -107,25 +117,23 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends DynamicBFSonDAGBotto
 		exit(latch);
 		return false;
 	}
-	
+
 	private synchronized V getLocalNode() {
-		int id = threadID.get();	
+		int id = threadID.get();
 
 		V localNode = localChunkStack.get(id).poll();
-		
-		if(localNode != null){
-			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
+
+		if (localNode != null) {
+			if (processedNodes.containsAll(graph.getChildrenList(localNode))
+					&& !processedNodes.contains(localNode)) {
 				return localNode;
-			}else{
+			} else {
 				waitingList.add(localNode);
 				return getLocalNode();
 			}
-		}else{
+		} else {
 			return null;
 		}
 	}
-			
 
 }
-
-

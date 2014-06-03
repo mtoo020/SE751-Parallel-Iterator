@@ -54,49 +54,55 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	protected ConcurrentLinkedQueue<V> processedNodes;
 
 	protected ConcurrentLinkedQueue<V> waitingList;
-	
+
 	protected AtomicInteger stealingThreads = new AtomicInteger(0);
 
 	protected final ReentrantLock lock = new ReentrantLock();
 
 	/**
 	 * 
-	 * @param graph - DAG graph that is being iterated over
-	 * @param root - root of the DAG tree
-	 * @param freeNodeList - Starting nodes that are essentially the initial freeNodes.
-	 * @param numOfThreads - number of threads running
-	 * @param chunkSize - max number of nodes assigned to a thread at a time.
+	 * @param graph
+	 *            - DAG graph that is being iterated over
+	 * @param root
+	 *            - root of the DAG tree
+	 * @param freeNodeList
+	 *            - Starting nodes that are essentially the initial freeNodes.
+	 * @param numOfThreads
+	 *            - number of threads running
+	 * @param chunkSize
+	 *            - max number of nodes assigned to a thread at a time.
 	 */
-	public DynamicBFSonDAGBottomTop(GraphAdapterInterface graph, Collection<V> startNodes, int numOfThreads, int chunkSize) {
+	public DynamicBFSonDAGBottomTop(GraphAdapterInterface graph,
+			Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
 		this.chunkSize = chunkSize;
 		this.graph = graph;
 		this.freeNodeStack = new LinkedBlockingDeque<V>();
 		numTreeNodes = graph.verticesSet().size();
-		
+
 		System.out.println("Total Nodes: " + numTreeNodes);
-		
+
 		buffer = new Object[numOfThreads][1];
 		permissionTable = new boolean[numOfThreads];
 		permissionTable = initializePermissionTable(permissionTable);
 		processedNodes = new ConcurrentLinkedQueue<V>();
 		waitingList = new ConcurrentLinkedQueue<V>();
 		localChunkStack = new ConcurrentHashMap<Integer, LinkedBlockingDeque<V>>();
-		
+
 		// Initialise freeNodeStack with the nodes from the startNodeList
-		for(V n : startNodes){
+		for (V n : startNodes) {
 			freeNodeStack.add(n);
 		}
-		
-		System.out.println(freeNodeStack.size());
-		
+
+		System.out.println("Free Node(s): " + freeNodeStack.size());
+
 		for (int i = 0; i < numOfThreads; i++) {
 			localChunkStack.put(i, new LinkedBlockingDeque<V>(chunkSize));
 		}
-		
+
 		latch = new CountDownLatch(numOfThreads);
 	}
-	
+
 	// Give all threads permission at the start.
 	protected boolean[] initializePermissionTable(boolean[] permissionTable) {
 		for (int i = 0; i < numOfThreads; i++) {
@@ -104,56 +110,58 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 		}
 		return permissionTable;
 	}
-	
+
 	@Override
 	public boolean hasNext() {
-		if(breakAll.get() == false){
+		if (breakAll.get() == false) {
 			int id = threadID.get();
-			
-			if(localChunkStack.get(id).size() == 0){
+
+			if (localChunkStack.get(id).size() == 0) {
 				permissionTable[id] = true;
-			}else{
+			} else {
 				permissionTable[id] = false;
 			}
-			
+
 			// Retrieve free nodes to fill up chunk size quota.
-			if(permissionTable[id]){ // Get free nodes.
-				for(int i = 0; i < chunkSize; i++){
-					// Prevent retrieval of free nodes if chunk size quota has been filled.
-					if(localChunkStack.get(id).size() < chunkSize){ 
+			if (permissionTable[id]) { // Get free nodes.
+				for (int i = 0; i < chunkSize; i++) {
+					// Prevent retrieval of free nodes if chunk size quota has
+					// been filled.
+					if (localChunkStack.get(id).size() < chunkSize) {
 						lock.lock();
 						V node = freeNodeStack.poll();
 						lock.unlock();
-						
-						if(node != null){
-							if(!processedNodes.contains(node)){
+
+						if (node != null) {
+							if (!processedNodes.contains(node)) {
 								localChunkStack.get(id).push(node);
 							}
 						}
 					}
 				}
 			}
-			
+
 			V nextNode = getLocalNode();
-			if(nextNode != null){
+			if (nextNode != null) {
 				buffer[id][0] = nextNode;
 				processedNodes.add(nextNode);
 				checkFreeNodes(nextNode);
 				return true;
 			}
-			
-			if(processedNodes.size() == numTreeNodes){
+
+			if (processedNodes.size() == numTreeNodes) {
 				exit(latch);
 				return false;
 			}
-			
+
 		}
 		exit(latch);
 		return false;
 	}
-	
+
 	/**
 	 * Threads call this method to exit.
+	 * 
 	 * @param latch
 	 */
 	protected void exit(CountDownLatch latch) {
@@ -164,48 +172,49 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 			System.out.println("Interrupted Exception");
 		}
 	}
-	
+
 	/**
 	 * @return node from the local stack of the thread.
 	 */
 	private synchronized V getLocalNode() {
-		int id = threadID.get();	
+		int id = threadID.get();
 
 		V localNode = localChunkStack.get(id).poll();
-		
-		if(localNode != null){
-			if(processedNodes.containsAll(graph.getChildrenList(localNode)) && !processedNodes.contains(localNode)){
 
+		if (localNode != null) {
+			if (processedNodes.containsAll(graph.getChildrenList(localNode))
+					&& !processedNodes.contains(localNode)) {
 
-				
 				return localNode;
-			}else{
+			} else {
 				waitingList.add(localNode);
 				return getLocalNode();
 			}
-		}else{
+		} else {
 			return null;
 		}
 	}
 
-	
 	/**
-	 * Check if any of the parents (nodes to be processed next) have become free nodes.
+	 * Check if any of the parents (nodes to be processed next) have become free
+	 * nodes.
+	 * 
 	 * @param node
 	 */
-	protected void checkFreeNodes(V node){
+	protected void checkFreeNodes(V node) {
 		int id = threadID.get();
 
 		@SuppressWarnings("unchecked")
 		Iterator<V> it = graph.getParentsList(node).iterator();
-		
+
 		V parent;
-		while(it.hasNext()){	
+		while (it.hasNext()) {
 			parent = it.next();
-			if(processedNodes.containsAll(graph.getChildrenList(parent)) && !processedNodes.contains(parent)){
+			if (processedNodes.containsAll(graph.getChildrenList(parent))
+					&& !processedNodes.contains(parent)) {
 				// Parent has become a free node.
 				freeNodeStack.offerLast(parent);
-				
+
 			}
 		}
 	}
@@ -214,7 +223,7 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	@Override
 	public V next() {
 		int id = threadID.get();
-		V nextNode = (V) buffer[id][0];		
+		V nextNode = (V) buffer[id][0];
 		return nextNode;
 	}
 

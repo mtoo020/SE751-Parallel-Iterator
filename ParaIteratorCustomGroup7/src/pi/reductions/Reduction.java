@@ -20,28 +20,37 @@
 package pi.reductions;
 
 /**
- * Defines a reduction and includes a range of built-in reductions (only a few common ones are implemented). Users may also define their own by implementing this interface. 
+ * Defines a reduction and includes a range of built-in reductions (only a few
+ * common ones are implemented). Users may also define their own by implementing
+ * this interface.
  *
- * @author Vikas Added reductions for minus, multi, bitOR, bitXOR, bitAND; added Float, Short, Byte reductions
+ * @author Vikas Added reductions for minus, multi, bitOR, bitXOR, bitAND; added
+ *         Float, Short, Byte reductions
  * @author Nasser Giacaman
  * @author Oliver Sinnen
  */
 public interface Reduction<E> {
-	
+
 	/**
-	 * Specifies a reduction as defined by 2 elements into 1. 
+	 * Specifies a reduction as defined by 2 elements into 1.
 	 * 
 	 * The reduction must obey the following 2 constraints:
 	 * <ul>
-	 *  <li>	<i>Associative</i>: the order of evaluating the reduction makes no difference, and
-	 *  <li>	<i>Commutative</i>:	the order of the thread-local values makes no difference.
+	 * <li><i>Associative</i>: the order of evaluating the reduction makes no
+	 * difference, and
+	 * <li><i>Commutative</i>: the order of the thread-local values makes no
+	 * difference.
 	 * </ul>
-	 * @param first		The first element in the reduction.
-	 * @param second	The second element in the reduction.
-	 * @return			The result of reducing <code>first</code> with <code>second</code>.
+	 * 
+	 * @param first
+	 *            The first element in the reduction.
+	 * @param second
+	 *            The second element in the reduction.
+	 * @return The result of reducing <code>first</code> with
+	 *         <code>second</code>.
 	 */
 	public E reduce(E first, E second);
-	
+
 	/**
 	 * Returns the maximum for <code>Integer</code>
 	 */
@@ -61,17 +70,17 @@ public interface Reduction<E> {
 			return Math.min(first, second);
 		}
 	};
-	
+
 	/**
 	 * Returns the sum for <code>Integer</code>
 	 */
 	public static Reduction<Integer> IntegerSUM = new Reduction<Integer>() {
 		@Override
 		public Integer reduce(Integer first, Integer second) {
-			return first +second;
+			return first + second;
 		}
 	};
-	
+
 	/**
 	 * Returns the multiplication for <code>Integer</code>
 	 */
@@ -81,10 +90,9 @@ public interface Reduction<E> {
 			return first * second;
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Integer</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Integer</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Integer> IntegerMINUS = new Reduction<Integer>() {
 		@Override
@@ -92,7 +100,7 @@ public interface Reduction<E> {
 			return first + second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Integer</code>
 	 */
@@ -102,7 +110,7 @@ public interface Reduction<E> {
 			return (first & second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Integer</code>
 	 */
@@ -112,7 +120,7 @@ public interface Reduction<E> {
 			return first | second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Integer</code>
 	 */
@@ -122,7 +130,7 @@ public interface Reduction<E> {
 			return first ^ second;
 		}
 	};
-	
+
 	/**
 	 * Returns the logical AND for <code>Integer</code>
 	 */
@@ -132,7 +140,7 @@ public interface Reduction<E> {
 			throw new RuntimeException("Logical AND is undefined on Integer");
 		}
 	};
-	
+
 	/**
 	 * Returns the logical OR for <code>Integer</code>
 	 */
@@ -141,10 +149,10 @@ public interface Reduction<E> {
 		public Integer reduce(Integer first, Integer second) {
 			throw new RuntimeException("Logical OR is undefined on Integer");
 		}
-	};	
-	
+	};
+
 	/**
-	 * Returns the maximum for <code>Double</code> 
+	 * Returns the maximum for <code>Double</code>
 	 */
 	public static Reduction<Double> DoubleMAX = new Reduction<Double>() {
 		@Override
@@ -154,7 +162,7 @@ public interface Reduction<E> {
 	};
 
 	/**
-	 * Returns the minimum for <code>Double</code>  
+	 * Returns the minimum for <code>Double</code>
 	 */
 	public static Reduction<Double> DoubleMIN = new Reduction<Double>() {
 		@Override
@@ -182,10 +190,9 @@ public interface Reduction<E> {
 			return first * second;
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Double</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Double</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Double> DoubleMINUS = new Reduction<Double>() {
 		@Override
@@ -193,7 +200,7 @@ public interface Reduction<E> {
 			return first + second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Double</code>
 	 */
@@ -203,7 +210,7 @@ public interface Reduction<E> {
 			throw new RuntimeException("Bitwise AND is undefined on Double");
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Double</code>
 	 */
@@ -213,7 +220,7 @@ public interface Reduction<E> {
 			throw new RuntimeException("Bitwise OR is undefined on Double");
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Double</code>
 	 */
@@ -223,7 +230,7 @@ public interface Reduction<E> {
 			throw new RuntimeException("Bitwise XOR is undefined on Double");
 		}
 	};
-	
+
 	/**
 	 * Returns the logical AND for <code>Double</code>
 	 */
@@ -233,7 +240,7 @@ public interface Reduction<E> {
 			throw new RuntimeException("Logical AND is undefined on Double");
 		}
 	};
-	
+
 	/**
 	 * Returns the logical OR for <code>Double</code>
 	 */
@@ -242,10 +249,10 @@ public interface Reduction<E> {
 		public Double reduce(Double first, Double second) {
 			throw new RuntimeException("Logical OR is undefined on Double");
 		}
-	};	
-	
+	};
+
 	/**
-	 * Returns the maximum for <code>Long</code> 
+	 * Returns the maximum for <code>Long</code>
 	 */
 	public static Reduction<Long> LongMAX = new Reduction<Long>() {
 		@Override
@@ -255,7 +262,7 @@ public interface Reduction<E> {
 	};
 
 	/**
-	 * Returns the minimum for <code>Long</code>  
+	 * Returns the minimum for <code>Long</code>
 	 */
 	public static Reduction<Long> LongMIN = new Reduction<Long>() {
 		@Override
@@ -283,10 +290,9 @@ public interface Reduction<E> {
 			return first * second;
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Long</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Long</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Long> LongMINUS = new Reduction<Long>() {
 		@Override
@@ -294,7 +300,7 @@ public interface Reduction<E> {
 			return first + second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Long</code>
 	 */
@@ -304,7 +310,7 @@ public interface Reduction<E> {
 			return first & second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Long</code>
 	 */
@@ -314,7 +320,7 @@ public interface Reduction<E> {
 			return first | second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Long</code>
 	 */
@@ -324,7 +330,7 @@ public interface Reduction<E> {
 			return first ^ second;
 		}
 	};
-	
+
 	/**
 	 * Returns the logical OR for <code>Long</code>
 	 */
@@ -334,9 +340,9 @@ public interface Reduction<E> {
 			throw new RuntimeException("Logical OR is undefined on Long");
 		}
 	};
-	
+
 	/**
-	 * Returns the maximum for <code>Float</code> 
+	 * Returns the maximum for <code>Float</code>
 	 */
 	public static Reduction<Float> FloatMAX = new Reduction<Float>() {
 		@Override
@@ -346,7 +352,7 @@ public interface Reduction<E> {
 	};
 
 	/**
-	 * Returns the minimum for <code>Float</code>  
+	 * Returns the minimum for <code>Float</code>
 	 */
 	public static Reduction<Float> FloatMIN = new Reduction<Float>() {
 		@Override
@@ -364,7 +370,7 @@ public interface Reduction<E> {
 			return first + second;
 		}
 	};
-	
+
 	/**
 	 * Returns the multiplication for <code>Float</code>
 	 */
@@ -374,10 +380,9 @@ public interface Reduction<E> {
 			return first * second;
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Float</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Float</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Float> FloatMINUS = new Reduction<Float>() {
 		@Override
@@ -385,9 +390,9 @@ public interface Reduction<E> {
 			return first + second;
 		}
 	};
-	
+
 	/**
-	 * Returns the maximum for <code>Short</code> 
+	 * Returns the maximum for <code>Short</code>
 	 */
 	public static Reduction<Short> ShortMAX = new Reduction<Short>() {
 		@Override
@@ -397,7 +402,7 @@ public interface Reduction<E> {
 	};
 
 	/**
-	 * Returns the minimum for <code>Short</code>  
+	 * Returns the minimum for <code>Short</code>
 	 */
 	public static Reduction<Short> ShortMIN = new Reduction<Short>() {
 		@Override
@@ -415,7 +420,7 @@ public interface Reduction<E> {
 			return (short) (first + second);
 		}
 	};
-	
+
 	/**
 	 * Returns the multiplication for <code>Short</code>
 	 */
@@ -425,10 +430,9 @@ public interface Reduction<E> {
 			return (short) (first * second);
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Short</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Short</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Short> ShortMINUS = new Reduction<Short>() {
 		@Override
@@ -436,7 +440,7 @@ public interface Reduction<E> {
 			return (short) (first + second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Short</code>
 	 */
@@ -446,7 +450,7 @@ public interface Reduction<E> {
 			return (short) (first & second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Short</code>
 	 */
@@ -456,7 +460,7 @@ public interface Reduction<E> {
 			return (short) (first | second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Short</code>
 	 */
@@ -466,9 +470,9 @@ public interface Reduction<E> {
 			return (short) (first ^ second);
 		}
 	};
-	
+
 	/**
-	 * Returns the maximum for <code>Byte</code> 
+	 * Returns the maximum for <code>Byte</code>
 	 */
 	public static Reduction<Byte> ByteMAX = new Reduction<Byte>() {
 		@Override
@@ -478,7 +482,7 @@ public interface Reduction<E> {
 	};
 
 	/**
-	 * Returns the minimum for <code>Byte</code>  
+	 * Returns the minimum for <code>Byte</code>
 	 */
 	public static Reduction<Byte> ByteMIN = new Reduction<Byte>() {
 		@Override
@@ -496,7 +500,7 @@ public interface Reduction<E> {
 			return (byte) (first + second);
 		}
 	};
-	
+
 	/**
 	 * Returns the multiplication for <code>Byte</code>
 	 */
@@ -506,10 +510,9 @@ public interface Reduction<E> {
 			return (byte) (first * second);
 		}
 	};
-	
+
 	/**
-	 * Returns the minus for <code>Byte</code>
-	 * <b>Minus results are added</b>
+	 * Returns the minus for <code>Byte</code> <b>Minus results are added</b>
 	 */
 	public static Reduction<Byte> ByteMINUS = new Reduction<Byte>() {
 		@Override
@@ -517,7 +520,7 @@ public interface Reduction<E> {
 			return (byte) (first + second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Byte</code>
 	 */
@@ -527,7 +530,7 @@ public interface Reduction<E> {
 			return (byte) (first & second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Byte</code>
 	 */
@@ -537,7 +540,7 @@ public interface Reduction<E> {
 			return (byte) (first | second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Byte</code>
 	 */
@@ -547,7 +550,7 @@ public interface Reduction<E> {
 			return (byte) (first ^ second);
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise AND for <code>Boolean</code>
 	 */
@@ -557,7 +560,7 @@ public interface Reduction<E> {
 			return first & second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise OR for <code>Boolean</code>
 	 */
@@ -567,7 +570,7 @@ public interface Reduction<E> {
 			return first | second;
 		}
 	};
-	
+
 	/**
 	 * Returns the bitwise XOR for <code>Boolean</code>
 	 */
@@ -577,9 +580,9 @@ public interface Reduction<E> {
 			return first ^ second;
 		}
 	};
-	
+
 	/**
-	 * Returns the logical AND for <code>Boolean</code>  
+	 * Returns the logical AND for <code>Boolean</code>
 	 */
 	public static Reduction<Boolean> BooleanLOGAND = new Reduction<Boolean>() {
 		@Override
@@ -597,5 +600,5 @@ public interface Reduction<E> {
 			return first || second;
 		}
 	};
-	
+
 }

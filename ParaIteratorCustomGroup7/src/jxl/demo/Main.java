@@ -24,7 +24,7 @@ public class Main {
 					|| a1.getType() == CellType.BOOLEAN_FORMULA
 					|| a1.getType() == CellType.DATE_FORMULA
 					|| a1.getType() == CellType.FORMULA_ERROR) {
-				FormulaCell cell = (FormulaCell)a1;
+				FormulaCell cell = (FormulaCell) a1;
 				System.out.println(cell.getFormula());
 			}
 		} catch (BiffException | IOException e) {

@@ -17,7 +17,6 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package pi;
 
 import java.util.*;
@@ -233,7 +232,7 @@ public class DFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 					if (tree.getParentsList(currentNode).size() > 0) {
 						Iterator<V> parents = tree.getParentsList(currentNode)
 								.iterator();
-						
+
 						while (parents.hasNext()) {
 							V parnt = parents.next();
 							successorsMap.get(parnt).decrementAndGet();
@@ -255,7 +254,7 @@ public class DFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 					childrenSize));
 			Iterator<V> childNodes = tree.getChildrenList(currentNode)
 					.iterator();
-			
+
 			int i = 1;
 			while (childNodes.hasNext()) {
 				V child = childNodes.next();
@@ -309,13 +308,12 @@ public class DFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 
 	}
 
-	// This method returns a vertex assigned to a specific thread 
+	// This method returns a vertex assigned to a specific thread
 	public V next() {
 		int id = threadID.get();
 		return (V) buffer[id][0];
 	}
 
-	
 	@Override
 	public void globalBreak() {
 		System.out.println("BreakAll called by thread");
@@ -329,4 +327,3 @@ public class DFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	}
 
 }
-

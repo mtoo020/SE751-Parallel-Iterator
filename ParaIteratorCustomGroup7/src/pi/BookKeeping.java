@@ -25,29 +25,28 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.*;
 
-
 /**
- * Date created: 	1 May 2008
- * Last modified:	7 September 2008
+ * Date created: 1 May 2008 Last modified: 7 September 2008
  * 
- * @author Lama Akeila 
+ * @author Lama Akeila
  * @author Wafaa Humadi
  * 
- * Purpose: The implementation of the Bookkepping mechanism.. It keeps track of the colours of the 
- * nodes during the runtime of the graph algorithm
+ *         Purpose: The implementation of the Bookkepping mechanism.. It keeps
+ *         track of the colours of the nodes during the runtime of the graph
+ *         algorithm
  */
 
 public class BookKeeping<V> {
 
 	private Collection vertices;
-	
+
 	private int numOfThreads;
-	
-	private AtomicBoolean breakAll = new AtomicBoolean (false);
+
+	private AtomicBoolean breakAll = new AtomicBoolean(false);
 
 	private ConcurrentHashMap<Object, Integer> visitedList;
-	
-	private ConcurrentHashMap<Object, Integer> blackList,greyList;
+
+	private ConcurrentHashMap<Object, Integer> blackList, greyList;
 
 	private ThreadLocal<Integer> colour = new ThreadLocal<Integer>() {
 		@Override
@@ -59,6 +58,7 @@ public class BookKeeping<V> {
 
 	/**
 	 * Constructor
+	 * 
 	 * @param vertices
 	 * @param nThreads
 	 */
@@ -68,7 +68,6 @@ public class BookKeeping<V> {
 		this.blackList = new ConcurrentHashMap<Object, Integer>();
 		this.greyList = new ConcurrentHashMap<Object, Integer>();
 
-
 	}
 
 	/**
@@ -77,14 +76,14 @@ public class BookKeeping<V> {
 	 * list) otherwise
 	 */
 	public boolean removeIfNotTaken(Object o) {
-		
-		if(breakAll.get() == false){
+
+		if (breakAll.get() == false) {
 			int id = ThreadID.getStaticID();
 			Object test = markIfNotAlreadyMarked(o);
 			if (test == null) {
 				return true; // success
 			}
-	
+
 			return false; // already taken
 		} else {
 			return false;
@@ -94,11 +93,11 @@ public class BookKeeping<V> {
 	public boolean containsVertex(Object vertex) {
 		return visitedList.containsKey(vertex);
 	}
-	
+
 	public boolean greyListcontainsVertex(Object vertex) {
 		return greyList.contains(vertex);
 	}
-	
+
 	public boolean blackListcontainsVertex(Object vertex) {
 		return blackList.contains(vertex);
 	}
@@ -107,11 +106,11 @@ public class BookKeeping<V> {
 		colour.set(generateUniqueColour(iterations));
 		visitedList.put(obj, colour.get());
 	}
-	
+
 	public void markBlack(Object obj) {
 		blackList.putIfAbsent(obj, 0);
 	}
-	
+
 	public void markGrey(Object obj) {
 		greyList.putIfAbsent(obj, 0);
 	}
@@ -122,7 +121,7 @@ public class BookKeeping<V> {
 	}
 
 	public int getVertexColor(Object o) {
-		//Vertex v = (Vertex) o;
+		// Vertex v = (Vertex) o;
 		return visitedList.get(o);
 	}
 
@@ -133,16 +132,15 @@ public class BookKeeping<V> {
 	public void setColour(Object v, int col) {
 		visitedList.put(v, col);
 	}
-	
+
 	public int generateUniqueColour(int iterationsCount) {
 		int id = ThreadID.getStaticID();
 		int x = (iterationsCount * numOfThreads) + id;
 		return x;
 	}
-	
+
 	public void setBreakAll(boolean b) {
 		breakAll.set(b);
-		
+
 	}
 }
-

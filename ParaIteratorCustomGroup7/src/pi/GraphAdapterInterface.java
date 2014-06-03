@@ -22,22 +22,20 @@ package pi;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 public interface GraphAdapterInterface<V, E> {
 
-	//returns the start nodes (either roots or leaves)
+	// returns the start nodes (either roots or leaves)
 	public Collection<INode> getStartNodes();
-	
-	//returns the successors of v
+
+	// returns the successors of v
 	public ArrayList<V> getChildrenList(Object v);
-	
-	//returns the parent nodes of v
+
+	// returns the parent nodes of v
 	public ArrayList<V> getParentsList(Object v);
 
-	//returns a collection of all the nodes in the graph
+	// returns a collection of all the nodes in the graph
 	public Collection<V> verticesSet();
 
-	//returns a collection of all the edges in the graph
+	// returns a collection of all the edges in the graph
 	public Collection<E> edgesSet();
 }
-

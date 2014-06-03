@@ -1,18 +1,18 @@
 package pi.util;
 
 /**
- * Put all flags in this class in order to reduce condition checks in frequently invoked method such as <code>hasNext()</code>.
+ * Put all flags in this class in order to reduce condition checks in frequently
+ * invoked method such as <code>hasNext()</code>.
  *
- * Author: xiaoxing
- * Date: 5/06/13
+ * Author: xiaoxing Date: 5/06/13
  */
 public class Flags {
 
 	public enum Flag {
-		BREAK(1),
-		RESET(1 << 1);
+		BREAK(1), RESET(1 << 1);
 
 		private int value;
+
 		private Flag(int value) {
 			this.value = value;
 		}
@@ -23,7 +23,7 @@ public class Flags {
 	};
 
 	final private ThreadID threadID;
-//	private AtomicInteger[] flags;
+	// private AtomicInteger[] flags;
 
 	final private TLocal<Integer> flags;
 
@@ -65,11 +65,11 @@ public class Flags {
 	}
 
 	public boolean flaggedWith(Flag flag) {
-//		if ((flags.get() & flag.getValue()) != 0) {
-////			unset(flag);	// After checking, unset the flag.
-//			return true;
-//		}
-//		return false;
+		// if ((flags.get() & flag.getValue()) != 0) {
+		// // unset(flag); // After checking, unset the flag.
+		// return true;
+		// }
+		// return false;
 		return ((flags.get() & flag.getValue()) != 0);
 	}
 }
