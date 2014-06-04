@@ -38,4 +38,7 @@ public interface GraphAdapterInterface<V, E> {
 
 	// returns a collection of all the edges in the graph
 	public Collection<E> edgesSet();
+	
+	// returns true if the graph has cycles, false otherwise.
+	public boolean hasCycles();
 }

@@ -17,12 +17,12 @@ public class MainDAG extends JFrame {
 	
 	public static void main(String[] args) throws Exception {
 		int threadCount = 4;
-		int chunkSize = 1;
+		int chunkSize = 16;
 		
 		GUIController guiController = new GUIController();
 		SwingUtilities.invokeLater(guiController);
 		
-		GraphAdapterInterface<INode, String> dag = new XLSImageParser("test4.xls").parse();
+		GraphAdapterInterface<INode, String> dag = new XLSParser("cyclic.xls").parse();
 
 		long start = System.currentTimeMillis();
 

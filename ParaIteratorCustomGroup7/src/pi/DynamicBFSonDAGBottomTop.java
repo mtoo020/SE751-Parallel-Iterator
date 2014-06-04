@@ -1,9 +1,7 @@
 package pi;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -11,8 +9,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-
-import pi.util.ThreadID;
 
 /**
  * 
@@ -75,6 +71,10 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	public DynamicBFSonDAGBottomTop(GraphAdapterInterface graph,
 			Collection<V> startNodes, int numOfThreads, int chunkSize) {
 		super(numOfThreads, false);
+		if (graph.hasCycles()) {
+			throw new IllegalArgumentException("Graph has cycles");
+		}
+	
 		this.chunkSize = chunkSize;
 		this.graph = graph;
 		this.freeNodeStack = new LinkedBlockingDeque<V>();
