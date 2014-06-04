@@ -8,6 +8,7 @@ import pi.ParIterator;
 import pi.ParIterator.Schedule;
 import pi.ParIteratorFactory;
 
+@SuppressWarnings("serial")
 public class MainDAG extends JFrame {
 
 	static int rect1Count = 0;

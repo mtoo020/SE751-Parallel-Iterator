@@ -9,10 +9,8 @@ import java.util.HashMap;
 
 import jxl.Cell;
 import jxl.CellType;
-import jxl.FormulaCell;
 import jxl.Sheet;
 import jxl.Workbook;
-import jxl.biff.formula.FormulaException;
 import jxl.read.biff.BiffException;
 import pi.GraphAdapterInterface;
 import pi.INode;

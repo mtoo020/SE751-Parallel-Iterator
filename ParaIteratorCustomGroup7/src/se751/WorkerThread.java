@@ -1,9 +1,5 @@
 package se751;
 
-
-
-import java.awt.Color;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.ImageIcon;
@@ -12,7 +8,6 @@ import javax.swing.JLayeredPane;
 
 import pi.INode;
 import pi.ParIterator;
-import pi.reductions.Reducible;
 
 public class WorkerThread extends Thread {
 
@@ -42,9 +37,7 @@ public class WorkerThread extends Thread {
 					+ " which has the data: " + imageLink);
 
 			try {
-				Random rand = new Random();
-				int randomNum = rand.nextInt((1500 - 1000) + 1) + 1000;
-				Thread.sleep(randomNum);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
