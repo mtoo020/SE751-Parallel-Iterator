@@ -32,14 +32,16 @@ public class XLSParser implements Parser {
 		
 		//limitations
 		//- only looks at the first sheet
-		//- only looks at cells with numbers or number formulas
+		//- only looks at cells with numbers, number formulas or empty cells
 		//- only handles "+ - * / ^ %" operations - no brackets or functions
-		//- only works with columns A-Z
+		//- only works with columns A-ZZ
+		//- ignores cycles
 
 		//visit and cells and store nodes
 		for (int i = 0; i < sheet.getColumns(); i++) {
 			for (int j = 0; j < sheet.getRows(); j++) {
 				Cell cell = sheet.getCell(i, j);
+				//ignore cycles
 				if (cell.getType() == CellType.NUMBER_FORMULA || cell.getType() == CellType.FORMULA_ERROR) {
 					try {
 						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
@@ -58,32 +60,41 @@ public class XLSParser implements Parser {
 		
 		//define children for each formula node based on its cell references
 		for (INode formulaNode : formulaNodes) {
-			boolean hasCellReferences = false;
+			boolean hasCellReferences = false;		
 			for (String operand : ((String)formulaNode.getData()).split("\\+|\\-|\\*|\\/|\\^|\\%")) {
 				//if the formula refers to another cell
 				if ('A' <= operand.charAt(0) && operand.charAt(0) <= 'Z') {
 					INode childNode = nodes.get(operand);
 					if (childNode == null) {
-						System.out.println("Cell reference (" + operand + ") not found");
+						Cell cell = sheet.getCell(operand);
+						if (cell.getType() == CellType.EMPTY) {
+							childNode = new Node(operand, 0);
+							nodes.put(operand, childNode);
+						}
+						else {
+							System.out.println("Cell reference (" + operand + ") not found");
+						}
 					}
-					//add the node as a child
-					formulaNode.addChild(childNode);
-					childNode.addParent(formulaNode);
-					hasCellReferences = true;
+					if (childNode != null) {
+						//add the node as a child
+						formulaNode.addChild(childNode);
+						childNode.addParent(formulaNode);
+						hasCellReferences = true;
+					}
 				}
 			}
 			if (!hasCellReferences) {
 				leaves.add(formulaNode);
 			}
 		}
-	
+		
 		return new GraphAdapter(nodes.values(), leaves);
 	}
 
 	private static String getName(Cell cell) {
 		if (cell.getColumn() >= 26) {
-			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow());
+			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
 		}
-		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow());
+		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
 	}
 }

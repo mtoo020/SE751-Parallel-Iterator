@@ -1,7 +1,5 @@
 package se751;
 
-
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,31 +39,34 @@ public class GraphAdapter implements GraphAdapterInterface<INode, String> {
 	}
 
 	public boolean hasCycles() {
-		HashMap<INode,Boolean> marks = new HashMap<INode,Boolean>();
-
+		HashMap<INode, Boolean> marks = new HashMap<INode, Boolean>();
 		for (INode node : startNodes) {
-			if (visit(node,marks)) {
+			if (visit(node, marks)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	private boolean visit(INode node,HashMap<INode,Boolean> marks) {
+
+	private boolean visit(INode node, HashMap<INode, Boolean> marks) {
 		Boolean mark = marks.get(node);
-		//not marked
+		// not marked
 		if (mark == null) {
+			// mark partially
 			marks.put(node, false);
 			for (INode parent : node.getParents()) {
-				visit(parent,marks);
+				if (visit(parent, marks)) {
+					return true;
+				}
 			}
+			// mark completely
 			marks.put(node, true);
 		}
-		//temporarily marked
+		// partially marked
 		else if (!mark) {
 			return true;
 		}
-		
+
 		return false;
 	}
 }
