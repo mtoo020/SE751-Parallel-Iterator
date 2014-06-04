@@ -34,7 +34,7 @@ public class XLSParser implements Parser {
 		//- only looks at the first sheet
 		//- only looks at cells with numbers or number formulas
 		//- only handles "+ - * / ^ %" operations - no brackets or functions
-		//- only works with columns A-Z
+		//- only works with columns A-ZZ
 
 		//visit and cells and store nodes
 		for (int i = 0; i < sheet.getColumns(); i++) {
@@ -82,8 +82,8 @@ public class XLSParser implements Parser {
 
 	private static String getName(Cell cell) {
 		if (cell.getColumn() >= 26) {
-			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow());
+			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
 		}
-		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow());
+		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
 	}
 }
