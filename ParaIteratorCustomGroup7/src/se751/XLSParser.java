@@ -45,7 +45,7 @@ public class XLSParser implements Parser {
 						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
 						nodes.put(formulaNode.getName(), formulaNode);
 						formulaNodes.add(formulaNode);
-					} catch (FormulaException e) {
+					} catch (FormulaException e) {						
 						e.printStackTrace();
 					}
 				} else if (cell.getType() == CellType.NUMBER) {
@@ -81,6 +81,9 @@ public class XLSParser implements Parser {
 	}
 
 	private static String getName(Cell cell) {
-		return "" + (char) (cell.getColumn() + 65) + (cell.getRow() + 1);
+		if (cell.getColumn() >= 26) {
+			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow());
+		}
+		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow());
 	}
 }
