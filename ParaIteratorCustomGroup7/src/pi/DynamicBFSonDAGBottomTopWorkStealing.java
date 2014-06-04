@@ -80,8 +80,12 @@ public class DynamicBFSonDAGBottomTopWorkStealing<V> extends
 	 *            - max number of nodes assigned to a thread at a time.
 	 */
 	public DynamicBFSonDAGBottomTopWorkStealing(GraphAdapterInterface graph,
-			Collection<V> startNodes, int numOfThreads, int chunkSize) {
+			Collection<V> startNodes, int numOfThreads, int chunkSize, boolean checkForCycles) {
 		super(numOfThreads, false);
+		if (checkForCycles && graph.hasCycles()) {
+			throw new IllegalArgumentException("Graph has cycles");
+		}
+		
 		this.chunkSize = chunkSize;
 		this.graph = graph;
 		this.freeNodeStack = new LinkedBlockingDeque<V>();

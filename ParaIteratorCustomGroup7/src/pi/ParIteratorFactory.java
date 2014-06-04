@@ -322,7 +322,7 @@ public class ParIteratorFactory<E> {
 	public static <V> ParIterator getTreeParIteratorBFSonDAGBottomTop(
 			GraphAdapterInterface graph, Collection<V> startNodes,
 			int numOfThreads, int chunkSize, ParIterator.Schedule schedulePol,
-			boolean workStealing) {
+			boolean workStealing, boolean checkForCycles) {
 
 		if (!workStealing) {
 			switch (schedulePol) {
@@ -330,18 +330,18 @@ public class ParIteratorFactory<E> {
 				System.out
 						.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
 				return new DynamicBFSonDAGBottomTop(graph, startNodes,
-						numOfThreads, chunkSize);
+						numOfThreads, chunkSize, checkForCycles);
 			case GUIDED:
 				return new GuidedBFSonDAGBottomTop(graph, startNodes,
-						numOfThreads, chunkSize);
+						numOfThreads, chunkSize, checkForCycles);
 			case DYNAMIC:
 				return new DynamicBFSonDAGBottomTop(graph, startNodes,
-						numOfThreads, chunkSize);
+						numOfThreads, chunkSize, checkForCycles);
 			case MEMORYAWARE:
 				System.out
 						.println("Memory Aware is not available. Using Dynamic Scheduling.");
 				return new DynamicBFSonDAGBottomTop(graph, startNodes,
-						numOfThreads, chunkSize);
+						numOfThreads, chunkSize, checkForCycles);
 			default:
 				throw new RuntimeException("Unknown schedule: " + schedulePol);
 			}
@@ -351,18 +351,18 @@ public class ParIteratorFactory<E> {
 				System.out
 						.println("Opps, static scheduling is not available. Using Dynamic Scheduling.");
 				return new DynamicBFSonDAGBottomTopWorkStealing(graph,
-						startNodes, numOfThreads, chunkSize);
+						startNodes, numOfThreads, chunkSize, checkForCycles);
 			case GUIDED:
 				return new GuidedBFSonDAGBottomTopWorkStealing(graph,
-						startNodes, numOfThreads, chunkSize);
+						startNodes, numOfThreads, chunkSize, checkForCycles);
 			case DYNAMIC:
 				return new DynamicBFSonDAGBottomTopWorkStealing(graph,
-						startNodes, numOfThreads, chunkSize);
+						startNodes, numOfThreads, chunkSize, checkForCycles);
 			case MEMORYAWARE:
 				System.out
 						.println("Memory Aware is not available. Using Dynamic Scheduling.");
 				return new DynamicBFSonDAGBottomTopWorkStealing(graph,
-						startNodes, numOfThreads, chunkSize);
+						startNodes, numOfThreads, chunkSize, checkForCycles);
 			default:
 				throw new RuntimeException("Unknown schedule: " + schedulePol);
 			}

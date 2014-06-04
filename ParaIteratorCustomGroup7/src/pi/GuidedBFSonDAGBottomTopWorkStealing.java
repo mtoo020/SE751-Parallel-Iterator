@@ -21,8 +21,8 @@ public class GuidedBFSonDAGBottomTopWorkStealing<V> extends
 	private static int currentChunkSize = 0;
 
 	public GuidedBFSonDAGBottomTopWorkStealing(GraphAdapterInterface graph,
-			Collection startNodes, int numOfThreads, int minChunkSize) {
-		super(graph, startNodes, numOfThreads, minChunkSize * 2);
+			Collection startNodes, int numOfThreads, int minChunkSize, boolean checkForCycles) {
+		super(graph, startNodes, numOfThreads, minChunkSize * 2, checkForCycles);
 		if (currentChunkSize == 0) {
 			currentChunkSize = minChunkSize * 2;
 		}

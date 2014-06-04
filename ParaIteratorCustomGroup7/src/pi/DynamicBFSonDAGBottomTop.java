@@ -69,9 +69,9 @@ public class DynamicBFSonDAGBottomTop<V> extends ParIteratorAbstract<V> {
 	 *            - max number of nodes assigned to a thread at a time.
 	 */
 	public DynamicBFSonDAGBottomTop(GraphAdapterInterface graph,
-			Collection<V> startNodes, int numOfThreads, int chunkSize) {
+			Collection<V> startNodes, int numOfThreads, int chunkSize, boolean checkForCycles) {
 		super(numOfThreads, false);
-		if (graph.hasCycles()) {
+		if (checkForCycles && graph.hasCycles()) {
 			throw new IllegalArgumentException("Graph has cycles");
 		}
 	

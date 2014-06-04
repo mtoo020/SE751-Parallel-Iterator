@@ -40,7 +40,7 @@ public class XLSParser implements Parser {
 		for (int i = 0; i < sheet.getColumns(); i++) {
 			for (int j = 0; j < sheet.getRows(); j++) {
 				Cell cell = sheet.getCell(i, j);
-				if (cell.getType() == CellType.NUMBER_FORMULA) {
+				if (cell.getType() == CellType.NUMBER_FORMULA || cell.getType() == CellType.FORMULA_ERROR) {
 					try {
 						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
 						nodes.put(formulaNode.getName(), formulaNode);

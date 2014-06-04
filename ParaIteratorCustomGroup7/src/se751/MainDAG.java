@@ -22,14 +22,14 @@ public class MainDAG extends JFrame {
 		GUIController guiController = new GUIController();
 		SwingUtilities.invokeLater(guiController);
 		
-		GraphAdapterInterface<INode, String> dag = new XLSParser("cyclic.xls").parse();
+		GraphAdapterInterface<INode, String> dag = new XLSImageParser("test4.xls").parse();
 
 		long start = System.currentTimeMillis();
 
 		@SuppressWarnings("unchecked")
 		ParIterator<INode> pi = ParIteratorFactory
 				.getTreeParIteratorBFSonDAGBottomTop(dag, dag.getStartNodes(),
-						threadCount, chunkSize, Schedule.DYNAMIC, false);
+						threadCount, chunkSize, Schedule.DYNAMIC, false, false);
 
 		AtomicInteger atomicInt = new AtomicInteger(1);
 
