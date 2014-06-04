@@ -1,3 +1,5 @@
+package se751;
+
 public class ImageObject {
 	private String formula;
 	private String imageLink;
@@ -10,7 +12,6 @@ public class ImageObject {
 		} else {
 			this.imageLink = split[0];
 		}
-		// System.out.println(this.formula);
 	}
 
 	public String getFormula() {

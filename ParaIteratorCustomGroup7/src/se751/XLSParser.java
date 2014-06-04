@@ -1,3 +1,7 @@
+package se751;
+
+
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +18,10 @@ import pi.GraphAdapterInterface;
 import pi.INode;
 import pi.Parser;
 
-public class XLSImageParser implements Parser {
+public class XLSParser implements Parser {
 	private Workbook workbook;
 
-	public XLSImageParser(String filename) throws BiffException, IOException {
+	public XLSParser(String filename) throws BiffException, IOException {
 		workbook = Workbook.getWorkbook(new File(filename));
 	}
 
@@ -38,24 +42,21 @@ public class XLSImageParser implements Parser {
 		for (int i = 0; i < sheet.getColumns(); i++) {
 			for (int j = 0; j < sheet.getRows(); j++) {
 				Cell cell = sheet.getCell(i, j);
-				if (!cell.getType().equals(CellType.EMPTY)) {
-					if ('A' <= cell.getContents().charAt(0)
-							&& cell.getContents().charAt(0) <= 'Z') {
+				if (cell.getType() == CellType.NUMBER_FORMULA) {
+					try {
 						INode formulaNode = new Node(getName(cell),
-								new ImageObject(cell.getContents()));
+								new ImageObject(((FormulaCell) cell)
+										.getFormula().toString()));
 						nodes.put(formulaNode.getName(), formulaNode);
 						formulaNodes.add(formulaNode);
-					} else {
-						INode leafNode = new Node(getName(cell),
-								new ImageObject(cell.getContents()));
-						nodes.put(leafNode.getName(), leafNode);
-						leaves.add(leafNode);
+					} catch (FormulaException e) {
+						e.printStackTrace();
 					}
-					// } else if (cell.getType() == CellType.NUMBER) {
-					// INode numberNode = new Node(getName(cell),
-					// cell.getContents());
-					// nodes.put(numberNode.getName(), numberNode);
-					// leaves.add(numberNode);
+				} else if (cell.getType() == CellType.NUMBER) {
+					INode numberNode = new Node(getName(cell),
+							cell.getContents());
+					nodes.put(numberNode.getName(), numberNode);
+					leaves.add(numberNode);
 				}
 			}
 		}
