@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import jxl.Cell;
+import jxl.CellReferenceHelper;
 import jxl.CellType;
 import jxl.FormulaCell;
 import jxl.Sheet;
@@ -34,7 +35,6 @@ public class XLSParser implements Parser {
 		//- only looks at the first sheet
 		//- only looks at cells with numbers, number formulas or empty cells
 		//- only handles "+ - * / ^ %" operations - no brackets or functions
-		//- only works with columns A-ZZ
 		//- ignores cycles
 
 		//visit and cells and store nodes
@@ -44,14 +44,14 @@ public class XLSParser implements Parser {
 				//ignore cycles
 				if (cell.getType() == CellType.NUMBER_FORMULA || cell.getType() == CellType.FORMULA_ERROR) {
 					try {
-						INode formulaNode = new Node(getName(cell), ((FormulaCell) cell).getFormula());
+						INode formulaNode = new Node(CellReferenceHelper.getCellReference(cell), ((FormulaCell) cell).getFormula());
 						nodes.put(formulaNode.getName(), formulaNode);
 						formulaNodes.add(formulaNode);
 					} catch (FormulaException e) {						
 						e.printStackTrace();
 					}
 				} else if (cell.getType() == CellType.NUMBER) {
-					INode numberNode = new Node(getName(cell), cell.getContents());
+					INode numberNode = new Node(CellReferenceHelper.getCellReference(cell), cell.getContents());
 					nodes.put(numberNode.getName(), numberNode);
 					leaves.add(numberNode);
 				}
@@ -89,12 +89,5 @@ public class XLSParser implements Parser {
 		}
 		
 		return new GraphAdapter(nodes.values(), leaves);
-	}
-
-	private static String getName(Cell cell) {
-		if (cell.getColumn() >= 26) {
-			return "" + (char) (64 + cell.getColumn()/26) + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
-		}
-		return "" + (char) (65 + cell.getColumn()%26) + (cell.getRow() + 1);
 	}
 }
